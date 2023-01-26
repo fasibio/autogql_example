@@ -1,0 +1,149 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type User @SQL(query: {
+  directiveExt: ["@A"]
+  get: {
+    value: true
+    directiveExt: ["@B"]
+  }
+  query: {
+    value: true
+    directiveExt: ["@C"]
+  }
+}, mutation: {
+  directiveExt: ["@D"]
+  add: {
+    value: true
+    directiveExt: ["@E"]
+  }
+  update: {
+    value: true
+    directiveExt: ["@F"]
+  }
+  delete: {
+    value: true
+    directiveExt: ["@G"]
+  }
+}){
+  id: Int! @SQL_PRIMARY
+  name: String!
+  companyID: Int
+  company: Company
+  todoList: [Todo!]!@SQL_GORM(value:"many2many:user_todos")
+  cat: [Cat!]
+  creditCards: [CreditCard!]
+}
+
+type CreditCard @SQL{
+  id: Int! @SQL_PRIMARY
+  number: String!
+  userID: Int!
+}
+
+type Cat @SQL{
+  id: Int! @SQL_PRIMARY
+  name: String!
+  age: Int
+  UserID: Int!
+  alive: Boolean! @SQL_GORM(value: "default:true")
+}
+
+type Company @SQL{
+  id: Int! @SQL_PRIMARY
+  Name: String!
+  description: String @SQL_GORM(value:"-")
+  motherCompanyID: Int
+  motherCompany: Company
+}
+
+type Todo @SQL {
+  id: Int! @SQL_PRIMARY
+  title: String!
+  description: String!
+  done: Boolean!
+  users: [User]@SQL_GORM(value:"many2many:user_todos")
+}
+
+
+# type Cat @SQL(){
+#   id: Int! @SQL_PRIMARY
+#   name: String! @SQL_INDEX
+#   alive: Boolean!
+#   age: Int!
+#   ownerID: Int!
+#   ownerName: User!
+#   description: String!
+# }
+
+# type AllFacts @SQL(){
+#   id: Int! @SQL_PRIMARY
+#   userReq: User! 
+#   userOpt: User
+#   userArrayReqReq: [User!]!
+#   userArrayReq: [User!]
+#   userArrayReq1: [User]!
+#   userArrayOpt: [User]
+#   simpleReq: Int!
+#   simple: Int
+#   simpleArrayReqReq: [Int!]!
+#   simpleArrayReq: [Int!]
+#   simpleArrayReq1: [Int]!
+#   simpleStrReq: String!
+#   simpleStr: String
+#   simpleStrArrayReqReq: [String!]!
+#   simpleStrArrayReq: [String!]
+#   simpleStrArrayReq1: [String]!
+# }
+
+
+# type Matches @SQL(){
+#   id: Int! @SQL_PRIMARY
+#   winner1ID: Int!
+#   winner1: User!
+#   winner2: User!
+#   looser1: User!
+#   looser2: User!
+#   score: Int
+# }
+
+# type Todo{
+#   text: String!
+#   done: Boolean!
+#   owner: User!
+# }
+
+# type User @SQL(){
+#   id: Int! @SQL_PRIMARY
+#   name: String!
+#   test: String!
+#   todo: Todo
+# }
+
+# type CatFood {
+#   name: String!
+#   price: Int!
+# }
+
+type Query {
+  a: String
+}
+# input AddTodoRef2UsersInput {
+#   filter: UserFiltersInput!
+#   set: [int!]!
+# }
+
+type Mutation {
+  # addTodo2Users(input:AddTodoRef2UsersInput):UpdateUserPayload
+  b: Int
+}
+
+directive @validated on FIELD_DEFINITION
+directive @A on FIELD_DEFINITION
+directive @B on FIELD_DEFINITION
+directive @C on FIELD_DEFINITION
+directive @D on FIELD_DEFINITION
+directive @E on FIELD_DEFINITION
+directive @F on FIELD_DEFINITION
+directive @G on FIELD_DEFINITION
