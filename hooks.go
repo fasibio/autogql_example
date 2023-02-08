@@ -30,7 +30,7 @@ func (h UpdateCompanyHook) Received(ctx context.Context, dbHelper *db.AutoGqlDB,
 	log.Println("Received")
 	return dbHelper.Db, *input, nil
 }
-func (h UpdateCompanyHook) BeforeCallDb(ctx context.Context, db *gorm.DB, data *model.Company) (*gorm.DB, *model.Company, error) {
+func (h UpdateCompanyHook) BeforeCallDb(ctx context.Context, db *gorm.DB, data map[string]interface{}) (*gorm.DB, map[string]interface{}, error) {
 	log.Println("BeforeCallDb")
 	return db, data, nil
 }

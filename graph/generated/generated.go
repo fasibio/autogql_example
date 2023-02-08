@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -102,6 +103,7 @@ type ComplexityRoot struct {
 	}
 
 	Company struct {
+		CreatedAt       func(childComplexity int) int
 		Description     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		MotherCompany   func(childComplexity int) int
@@ -430,7 +432,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Cat.Name(childComplexity), true
 
-	case "Cat.UserID":
+	case "Cat.userID":
 		if e.complexity.Cat.UserID == nil {
 			break
 		}
@@ -457,6 +459,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CatQueryResult.TotalCount(childComplexity), true
+
+	case "Company.createdAt":
+		if e.complexity.Company.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Company.CreatedAt(childComplexity), true
 
 	case "Company.description":
 		if e.complexity.Company.Description == nil {
@@ -486,7 +495,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Company.MotherCompanyID(childComplexity), true
 
-	case "Company.Name":
+	case "Company.name":
 		if e.complexity.Company.Name == nil {
 			break
 		}
@@ -1273,6 +1282,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSqlMutationParams,
 		ec.unmarshalInputSqlQueryParams,
 		ec.unmarshalInputStringFilterInput,
+		ec.unmarshalInputTimeFilterBetween,
+		ec.unmarshalInputTimeFilterInput,
 		ec.unmarshalInputTodoFiltersInput,
 		ec.unmarshalInputTodoInput,
 		ec.unmarshalInputTodoOrder,
@@ -1393,19 +1404,21 @@ type CreditCard @SQL{
 }
 
 type Cat @SQL{
-  id: Int! @SQL_PRIMARY
+  id: Int! @SQL_PRIMARY @SQL_GORM(value: "autoIncrement")
   name: String!
   age: Int
-  UserID: Int!
-  alive: Boolean! @SQL_GORM(value: "default:true")
+  userID: Int!
+  alive: Boolean @SQL_GORM(value: "default:true")
 }
 
 type Company @SQL{
   id: Int! @SQL_PRIMARY
-  Name: String!
+  name: String!
   description: String @SQL_GORM(value:"-")
   motherCompanyID: Int
   motherCompany: Company
+  createdAt: Time
+
 }
 
 type Todo @SQL {
@@ -1521,6 +1534,8 @@ directive @G on FIELD_DEFINITION`, BuiltIn: false},
 	directive @SQL_INDEX on FIELD_DEFINITION
 
 	directive @SQL_GORM (value: String)on FIELD_DEFINITION
+
+	scalar Time
 	`, BuiltIn: true},
 	{Name: "../../autogql/autogql.graphql", Input: `
 
@@ -1587,41 +1602,38 @@ input BooleanFilterInput{
   notNull: Boolean
 }
 
-#input DateFilterInput {
-#  and: [Date]
-#  or: [Date]
-#  not: DateFilterInput
-#  eq: Date
-#  ne: Date
-#  gt: Date
-#  gte: Date
-#  lt: Date
-#  lte: Date
-#  null: Boolean
-#  notNull: Boolean
-#  in: [Date]
-#  notIn: [Date]
-#  between: DateFilterBetween
-#}
-
-#input DateFilterBetween{
-#  start: Date!
-#  end: Date!
-#}
+input TimeFilterInput {
+  and: [Time]
+  or: [Time]
+  not: TimeFilterInput
+  eq: Time
+  ne: Time
+  gt: Time
+  gte: Time
+  lt: Time
+  lte: Time
+  null: Boolean
+  notNull: Boolean
+  in: [Time]
+  notIn: [Time]
+  between: TimeFilterBetween
+}
+input TimeFilterBetween{
+  start: Time!
+  end: Time!
+}
 
 input CatInput{
-  id: Int!
   name: String!
   age: Int
-  UserID: Int!
-  alive: Boolean!
+  userID: Int!
+  alive: Boolean
 }
 
 input CatPatch{
-  id: Int
   name: String
   age: Int
-  UserID: Int
+  userID: Int
   alive: Boolean
 }
 
@@ -1655,7 +1667,7 @@ enum CatOrderable {
   id
   name
   age
-  UserID
+  userID
   alive
 }
 input CatOrder{
@@ -1667,7 +1679,7 @@ input CatFiltersInput{
   id: IntFilterInput
   name: StringFilterInput
   age: IntFilterInput
-  UserID: IntFilterInput
+  userID: IntFilterInput
   alive: BooleanFilterInput
   and: [CatFiltersInput]
   or: [CatFiltersInput]
@@ -1685,14 +1697,14 @@ extend type Mutation {
 
 input CompanyInput{
   id: Int!
-  Name: String!
+  name: String!
   motherCompanyID: Int
   motherCompany: CompanyInput
 }
 
 input CompanyPatch{
   id: Int
-  Name: String
+  name: String
   motherCompanyID: Int
   motherCompany: CompanyPatch
 }
@@ -1725,7 +1737,7 @@ type CompanyQueryResult{
 
 enum CompanyOrderable {
   id
-  Name
+  name
   motherCompanyID
 }
 input CompanyOrder{
@@ -1735,9 +1747,10 @@ input CompanyOrder{
 
 input CompanyFiltersInput{
   id: IntFilterInput
-  Name: StringFilterInput
+  name: StringFilterInput
   motherCompanyID: IntFilterInput
   motherCompany:CompanyFiltersInput
+  createdAt: TimeFilterInput
   and: [CompanyFiltersInput]
   or: [CompanyFiltersInput]
   not: CompanyFiltersInput
@@ -3654,8 +3667,8 @@ func (ec *executionContext) fieldContext_Cat_age(ctx context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Cat_UserID(ctx context.Context, field graphql.CollectedField, obj *model.Cat) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Cat_UserID(ctx, field)
+func (ec *executionContext) _Cat_userID(ctx context.Context, field graphql.CollectedField, obj *model.Cat) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Cat_userID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3685,7 +3698,7 @@ func (ec *executionContext) _Cat_UserID(ctx context.Context, field graphql.Colle
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Cat_UserID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Cat_userID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Cat",
 		Field:      field,
@@ -3719,14 +3732,11 @@ func (ec *executionContext) _Cat_alive(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*bool)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Cat_alive(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3787,8 +3797,8 @@ func (ec *executionContext) fieldContext_CatQueryResult_data(ctx context.Context
 				return ec.fieldContext_Cat_name(ctx, field)
 			case "age":
 				return ec.fieldContext_Cat_age(ctx, field)
-			case "UserID":
-				return ec.fieldContext_Cat_UserID(ctx, field)
+			case "userID":
+				return ec.fieldContext_Cat_userID(ctx, field)
 			case "alive":
 				return ec.fieldContext_Cat_alive(ctx, field)
 			}
@@ -3930,8 +3940,8 @@ func (ec *executionContext) fieldContext_Company_id(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Company_Name(ctx context.Context, field graphql.CollectedField, obj *model.Company) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Company_Name(ctx, field)
+func (ec *executionContext) _Company_name(ctx context.Context, field graphql.CollectedField, obj *model.Company) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Company_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3961,7 +3971,7 @@ func (ec *executionContext) _Company_Name(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Company_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Company_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Company",
 		Field:      field,
@@ -4094,16 +4104,59 @@ func (ec *executionContext) fieldContext_Company_motherCompany(ctx context.Conte
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Company_id(ctx, field)
-			case "Name":
-				return ec.fieldContext_Company_Name(ctx, field)
+			case "name":
+				return ec.fieldContext_Company_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Company_description(ctx, field)
 			case "motherCompanyID":
 				return ec.fieldContext_Company_motherCompanyID(ctx, field)
 			case "motherCompany":
 				return ec.fieldContext_Company_motherCompany(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Company_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Company", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Company_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Company) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Company_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Company_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Company",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4150,14 +4203,16 @@ func (ec *executionContext) fieldContext_CompanyQueryResult_data(ctx context.Con
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Company_id(ctx, field)
-			case "Name":
-				return ec.fieldContext_Company_Name(ctx, field)
+			case "name":
+				return ec.fieldContext_Company_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Company_description(ctx, field)
 			case "motherCompanyID":
 				return ec.fieldContext_Company_motherCompanyID(ctx, field)
 			case "motherCompany":
 				return ec.fieldContext_Company_motherCompany(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Company_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Company", field.Name)
 		},
@@ -6459,8 +6514,8 @@ func (ec *executionContext) fieldContext_Query_getCat(ctx context.Context, field
 				return ec.fieldContext_Cat_name(ctx, field)
 			case "age":
 				return ec.fieldContext_Cat_age(ctx, field)
-			case "UserID":
-				return ec.fieldContext_Cat_UserID(ctx, field)
+			case "userID":
+				return ec.fieldContext_Cat_userID(ctx, field)
 			case "alive":
 				return ec.fieldContext_Cat_alive(ctx, field)
 			}
@@ -6577,14 +6632,16 @@ func (ec *executionContext) fieldContext_Query_getCompany(ctx context.Context, f
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Company_id(ctx, field)
-			case "Name":
-				return ec.fieldContext_Company_Name(ctx, field)
+			case "name":
+				return ec.fieldContext_Company_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Company_description(ctx, field)
 			case "motherCompanyID":
 				return ec.fieldContext_Company_motherCompanyID(ctx, field)
 			case "motherCompany":
 				return ec.fieldContext_Company_motherCompany(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Company_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Company", field.Name)
 		},
@@ -8286,14 +8343,16 @@ func (ec *executionContext) fieldContext_User_company(ctx context.Context, field
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Company_id(ctx, field)
-			case "Name":
-				return ec.fieldContext_Company_Name(ctx, field)
+			case "name":
+				return ec.fieldContext_Company_name(ctx, field)
 			case "description":
 				return ec.fieldContext_Company_description(ctx, field)
 			case "motherCompanyID":
 				return ec.fieldContext_Company_motherCompanyID(ctx, field)
 			case "motherCompany":
 				return ec.fieldContext_Company_motherCompany(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Company_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Company", field.Name)
 		},
@@ -8399,8 +8458,8 @@ func (ec *executionContext) fieldContext_User_cat(ctx context.Context, field gra
 				return ec.fieldContext_Cat_name(ctx, field)
 			case "age":
 				return ec.fieldContext_Cat_age(ctx, field)
-			case "UserID":
-				return ec.fieldContext_Cat_UserID(ctx, field)
+			case "userID":
+				return ec.fieldContext_Cat_userID(ctx, field)
 			case "alive":
 				return ec.fieldContext_Cat_alive(ctx, field)
 			}
@@ -10455,7 +10514,7 @@ func (ec *executionContext) unmarshalInputCatFiltersInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "age", "UserID", "alive", "and", "or", "not"}
+	fieldsInOrder := [...]string{"id", "name", "age", "userID", "alive", "and", "or", "not"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10486,10 +10545,10 @@ func (ec *executionContext) unmarshalInputCatFiltersInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "UserID":
+		case "userID":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UserID"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
 			it.UserID, err = ec.unmarshalOIntFilterInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐIntFilterInput(ctx, v)
 			if err != nil {
 				return it, err
@@ -10539,21 +10598,13 @@ func (ec *executionContext) unmarshalInputCatInput(ctx context.Context, obj inte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "age", "UserID", "alive"}
+	fieldsInOrder := [...]string{"name", "age", "userID", "alive"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "name":
 			var err error
 
@@ -10570,10 +10621,10 @@ func (ec *executionContext) unmarshalInputCatInput(ctx context.Context, obj inte
 			if err != nil {
 				return it, err
 			}
-		case "UserID":
+		case "userID":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UserID"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
 			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
@@ -10582,7 +10633,7 @@ func (ec *executionContext) unmarshalInputCatInput(ctx context.Context, obj inte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alive"))
-			it.Alive, err = ec.unmarshalNBoolean2bool(ctx, v)
+			it.Alive, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10635,21 +10686,13 @@ func (ec *executionContext) unmarshalInputCatPatch(ctx context.Context, obj inte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "age", "UserID", "alive"}
+	fieldsInOrder := [...]string{"name", "age", "userID", "alive"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "name":
 			var err error
 
@@ -10666,10 +10709,10 @@ func (ec *executionContext) unmarshalInputCatPatch(ctx context.Context, obj inte
 			if err != nil {
 				return it, err
 			}
-		case "UserID":
+		case "userID":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("UserID"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
 			it.UserID, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
@@ -10695,7 +10738,7 @@ func (ec *executionContext) unmarshalInputCompanyFiltersInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "Name", "motherCompanyID", "motherCompany", "and", "or", "not"}
+	fieldsInOrder := [...]string{"id", "name", "motherCompanyID", "motherCompany", "createdAt", "and", "or", "not"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10710,10 +10753,10 @@ func (ec *executionContext) unmarshalInputCompanyFiltersInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "Name":
+		case "name":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Name"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalOStringFilterInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐStringFilterInput(ctx, v)
 			if err != nil {
 				return it, err
@@ -10731,6 +10774,14 @@ func (ec *executionContext) unmarshalInputCompanyFiltersInput(ctx context.Contex
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("motherCompany"))
 			it.MotherCompany, err = ec.unmarshalOCompanyFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyFiltersInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			it.CreatedAt, err = ec.unmarshalOTimeFilterInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTimeFilterInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10771,7 +10822,7 @@ func (ec *executionContext) unmarshalInputCompanyInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "Name", "motherCompanyID", "motherCompany"}
+	fieldsInOrder := [...]string{"id", "name", "motherCompanyID", "motherCompany"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10786,10 +10837,10 @@ func (ec *executionContext) unmarshalInputCompanyInput(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
-		case "Name":
+		case "name":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Name"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -10859,7 +10910,7 @@ func (ec *executionContext) unmarshalInputCompanyPatch(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "Name", "motherCompanyID", "motherCompany"}
+	fieldsInOrder := [...]string{"id", "name", "motherCompanyID", "motherCompany"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10874,10 +10925,10 @@ func (ec *executionContext) unmarshalInputCompanyPatch(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
-		case "Name":
+		case "name":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Name"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
@@ -11627,6 +11678,174 @@ func (ec *executionContext) unmarshalInputStringFilterInput(ctx context.Context,
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notIn"))
 			it.NotIn, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTimeFilterBetween(ctx context.Context, obj interface{}) (model.TimeFilterBetween, error) {
+	var it model.TimeFilterBetween
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"start", "end"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "start":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
+			it.Start, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "end":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end"))
+			it.End, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTimeFilterInput(ctx context.Context, obj interface{}) (model.TimeFilterInput, error) {
+	var it model.TimeFilterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"and", "or", "not", "eq", "ne", "gt", "gte", "lt", "lte", "null", "notNull", "in", "notIn", "between"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "and":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			it.And, err = ec.unmarshalOTime2ᚕᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "or":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			it.Or, err = ec.unmarshalOTime2ᚕᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "not":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			it.Not, err = ec.unmarshalOTimeFilterInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTimeFilterInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "eq":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("eq"))
+			it.Eq, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ne"))
+			it.Ne, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gt"))
+			it.Gt, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gte"))
+			it.Gte, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lt"))
+			it.Lt, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lte"))
+			it.Lte, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("null"))
+			it.Null, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "notNull":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notNull"))
+			it.NotNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+			it.In, err = ec.unmarshalOTime2ᚕᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "notIn":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notIn"))
+			it.NotIn, err = ec.unmarshalOTime2ᚕᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "between":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("between"))
+			it.Between, err = ec.unmarshalOTimeFilterBetween2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTimeFilterBetween(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12657,9 +12876,9 @@ func (ec *executionContext) _Cat(ctx context.Context, sel ast.SelectionSet, obj 
 
 			out.Values[i] = ec._Cat_age(ctx, field, obj)
 
-		case "UserID":
+		case "userID":
 
-			out.Values[i] = ec._Cat_UserID(ctx, field, obj)
+			out.Values[i] = ec._Cat_userID(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -12668,9 +12887,6 @@ func (ec *executionContext) _Cat(ctx context.Context, sel ast.SelectionSet, obj 
 
 			out.Values[i] = ec._Cat_alive(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12741,9 +12957,9 @@ func (ec *executionContext) _Company(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Name":
+		case "name":
 
-			out.Values[i] = ec._Company_Name(ctx, field, obj)
+			out.Values[i] = ec._Company_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -12759,6 +12975,10 @@ func (ec *executionContext) _Company(ctx context.Context, sel ast.SelectionSet, 
 		case "motherCompany":
 
 			out.Values[i] = ec._Company_motherCompany(ctx, field, obj)
+
+		case "createdAt":
+
+			out.Values[i] = ec._Company_createdAt(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -14674,6 +14894,21 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return time.Time(res), graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNTodo2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTodoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Todo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -15947,6 +16182,70 @@ func (ec *executionContext) unmarshalOStringFilterInput2ᚖgithubᚗcomᚋfasibi
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputStringFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTime2ᚕᚖtimeᚐTime(ctx context.Context, v interface{}) ([]*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*time.Time, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOTime2ᚕᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v []*time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOTime2ᚖtimeᚐTime(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOTimeFilterBetween2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTimeFilterBetween(ctx context.Context, v interface{}) (*model.TimeFilterBetween, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTimeFilterBetween(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTimeFilterInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTimeFilterInput(ctx context.Context, v interface{}) (*model.TimeFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTimeFilterInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

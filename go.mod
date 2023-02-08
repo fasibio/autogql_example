@@ -39,3 +39,5 @@ require (
 	golang.org/x/tools v0.1.12 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/fasibio/autogql => /home/fabian/go/src/github.com/fasibio/autogql

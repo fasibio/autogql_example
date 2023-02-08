@@ -2,39 +2,28 @@
 
 package model
 
-func (d *CatPatch) MergeToType() Cat {
-	var tmpID int
-	if d.ID != nil {
-		tmpID = *d.ID
-	}
-	var tmpName string
+func (d *CatPatch) MergeToType() map[string]interface{} {
+	res := make(map[string]interface{})
+
 	if d.Name != nil {
-		tmpName = *d.Name
+		res["name"] = *d.Name
 	}
-	var tmpAge *int
+
 	if d.Age != nil {
-		tmpAge = d.Age
+		res["age"] = d.Age
 	}
-	var tmpUserID int
+
 	if d.UserID != nil {
-		tmpUserID = *d.UserID
+		res["user_id"] = *d.UserID
 	}
-	var tmpAlive bool
+
 	if d.Alive != nil {
-		tmpAlive = *d.Alive
+		res["alive"] = d.Alive
 	}
-	return Cat{
-		ID:     tmpID,
-		Name:   tmpName,
-		Age:    tmpAge,
-		UserID: tmpUserID,
-		Alive:  tmpAlive,
-	}
+	return res
 }
 
 func (d *CatInput) MergeToType() Cat {
-
-	tmpID := d.ID
 
 	tmpName := d.Name
 
@@ -45,9 +34,11 @@ func (d *CatInput) MergeToType() Cat {
 
 	tmpUserID := d.UserID
 
-	tmpAlive := d.Alive
+	var tmpAlive *bool
+	if d.Alive != nil {
+		tmpAlive = d.Alive
+	}
 	return Cat{
-		ID:     tmpID,
 		Name:   tmpName,
 		Age:    tmpAge,
 		UserID: tmpUserID,
@@ -55,29 +46,24 @@ func (d *CatInput) MergeToType() Cat {
 	}
 }
 
-func (d *CompanyPatch) MergeToType() Company {
-	var tmpID int
+func (d *CompanyPatch) MergeToType() map[string]interface{} {
+	res := make(map[string]interface{})
+
 	if d.ID != nil {
-		tmpID = *d.ID
+		res["id"] = *d.ID
 	}
-	var tmpName string
+
 	if d.Name != nil {
-		tmpName = *d.Name
+		res["name"] = *d.Name
 	}
-	var tmpMotherCompanyID *int
+
 	if d.MotherCompanyID != nil {
-		tmpMotherCompanyID = d.MotherCompanyID
+		res["mother_company_id"] = d.MotherCompanyID
 	}
-	var tmpMotherCompany Company
 	if d.MotherCompany != nil {
-		tmpMotherCompany = d.MotherCompany.MergeToType()
+		res["mother_company"] = d.MotherCompany.MergeToType()
 	}
-	return Company{
-		ID:              tmpID,
-		Name:            tmpName,
-		MotherCompanyID: tmpMotherCompanyID,
-		MotherCompany:   &tmpMotherCompany,
-	}
+	return res
 }
 
 func (d *CompanyInput) MergeToType() Company {
@@ -102,24 +88,21 @@ func (d *CompanyInput) MergeToType() Company {
 	}
 }
 
-func (d *CreditCardPatch) MergeToType() CreditCard {
-	var tmpID int
+func (d *CreditCardPatch) MergeToType() map[string]interface{} {
+	res := make(map[string]interface{})
+
 	if d.ID != nil {
-		tmpID = *d.ID
+		res["id"] = *d.ID
 	}
-	var tmpNumber string
+
 	if d.Number != nil {
-		tmpNumber = *d.Number
+		res["number"] = *d.Number
 	}
-	var tmpUserID int
+
 	if d.UserID != nil {
-		tmpUserID = *d.UserID
+		res["user_id"] = *d.UserID
 	}
-	return CreditCard{
-		ID:     tmpID,
-		Number: tmpNumber,
-		UserID: tmpUserID,
-	}
+	return res
 }
 
 func (d *CreditCardInput) MergeToType() CreditCard {
@@ -136,38 +119,33 @@ func (d *CreditCardInput) MergeToType() CreditCard {
 	}
 }
 
-func (d *TodoPatch) MergeToType() Todo {
-	var tmpID int
+func (d *TodoPatch) MergeToType() map[string]interface{} {
+	res := make(map[string]interface{})
+
 	if d.ID != nil {
-		tmpID = *d.ID
+		res["id"] = *d.ID
 	}
-	var tmpTitle string
+
 	if d.Title != nil {
-		tmpTitle = *d.Title
+		res["title"] = *d.Title
 	}
-	var tmpDescription string
+
 	if d.Description != nil {
-		tmpDescription = *d.Description
+		res["description"] = *d.Description
 	}
-	var tmpDone bool
+
 	if d.Done != nil {
-		tmpDone = *d.Done
+		res["done"] = *d.Done
 	}
-	var tmpUsers []*User
 	if d.Users != nil {
-		tmpUsers = make([]*User, len(d.Users))
+		tmpUsers := make([]map[string]interface{}, len(d.Users))
 		for _, v := range d.Users {
 			tmp := v.MergeToType()
-			tmpUsers = append(tmpUsers, &tmp)
+			tmpUsers = append(tmpUsers, tmp)
 		}
+		res["users"] = tmpUsers
 	}
-	return Todo{
-		ID:          tmpID,
-		Title:       tmpTitle,
-		Description: tmpDescription,
-		Done:        tmpDone,
-		Users:       tmpUsers,
-	}
+	return res
 }
 
 func (d *TodoInput) MergeToType() Todo {
@@ -196,56 +174,48 @@ func (d *TodoInput) MergeToType() Todo {
 	}
 }
 
-func (d *UserPatch) MergeToType() User {
-	var tmpID int
+func (d *UserPatch) MergeToType() map[string]interface{} {
+	res := make(map[string]interface{})
+
 	if d.ID != nil {
-		tmpID = *d.ID
+		res["id"] = *d.ID
 	}
-	var tmpName string
+
 	if d.Name != nil {
-		tmpName = *d.Name
+		res["name"] = *d.Name
 	}
-	var tmpCompanyID *int
+
 	if d.CompanyID != nil {
-		tmpCompanyID = d.CompanyID
+		res["company_id"] = d.CompanyID
 	}
-	var tmpCompany Company
 	if d.Company != nil {
-		tmpCompany = d.Company.MergeToType()
+		res["company"] = d.Company.MergeToType()
 	}
-	var tmpTodoList []*Todo
 	if d.TodoList != nil {
-		tmpTodoList = make([]*Todo, len(d.TodoList))
+		tmpTodoList := make([]map[string]interface{}, len(d.TodoList))
 		for _, v := range d.TodoList {
 			tmp := v.MergeToType()
-			tmpTodoList = append(tmpTodoList, &tmp)
+			tmpTodoList = append(tmpTodoList, tmp)
 		}
+		res["todo_list"] = tmpTodoList
 	}
-	var tmpCat []*Cat
 	if d.Cat != nil {
-		tmpCat = make([]*Cat, len(d.Cat))
+		tmpCat := make([]map[string]interface{}, len(d.Cat))
 		for _, v := range d.Cat {
 			tmp := v.MergeToType()
-			tmpCat = append(tmpCat, &tmp)
+			tmpCat = append(tmpCat, tmp)
 		}
+		res["cat"] = tmpCat
 	}
-	var tmpCreditCards []*CreditCard
 	if d.CreditCards != nil {
-		tmpCreditCards = make([]*CreditCard, len(d.CreditCards))
+		tmpCreditCards := make([]map[string]interface{}, len(d.CreditCards))
 		for _, v := range d.CreditCards {
 			tmp := v.MergeToType()
-			tmpCreditCards = append(tmpCreditCards, &tmp)
+			tmpCreditCards = append(tmpCreditCards, tmp)
 		}
+		res["credit_cards"] = tmpCreditCards
 	}
-	return User{
-		ID:          tmpID,
-		Name:        tmpName,
-		CompanyID:   tmpCompanyID,
-		Company:     &tmpCompany,
-		TodoList:    tmpTodoList,
-		Cat:         tmpCat,
-		CreditCards: tmpCreditCards,
-	}
+	return res
 }
 
 func (d *UserInput) MergeToType() User {

@@ -43,19 +43,21 @@ type CreditCard @SQL{
 }
 
 type Cat @SQL{
-  id: Int! @SQL_PRIMARY
+  id: Int! @SQL_PRIMARY @SQL_GORM(value: "autoIncrement")
   name: String!
   age: Int
-  UserID: Int!
-  alive: Boolean! @SQL_GORM(value: "default:true")
+  userID: Int!
+  alive: Boolean @SQL_GORM(value: "default:true")
 }
 
 type Company @SQL{
   id: Int! @SQL_PRIMARY
-  Name: String!
+  name: String!
   description: String @SQL_GORM(value:"-")
   motherCompanyID: Int
   motherCompany: Company
+  createdAt: Time
+
 }
 
 type Todo @SQL {

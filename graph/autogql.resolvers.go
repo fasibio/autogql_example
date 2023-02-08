@@ -169,7 +169,7 @@ func (r *mutationResolver) AddCat(ctx context.Context, input []*model.CatInput) 
 
 // UpdateCat is the resolver for the updateCat field.
 func (r *mutationResolver) UpdateCat(ctx context.Context, input model.UpdateCatInput) (*model.UpdateCatPayload, error) {
-	v, okHook := r.Sql.Hooks["UpdateCat"].(db.AutoGqlHookUpdate[model.Cat, model.UpdateCatInput, model.UpdateCatPayload])
+	v, okHook := r.Sql.Hooks["UpdateCat"].(db.AutoGqlHookUpdate[model.UpdateCatInput, model.UpdateCatPayload])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -182,8 +182,7 @@ func (r *mutationResolver) UpdateCat(ctx context.Context, input model.UpdateCatI
 	sql, arguments := runtimehelper.CombineSimpleQuery(input.Filter.ExtendsDatabaseQuery(r.Sql.Db, tableName), "AND")
 	obj := model.Cat{}
 	db = db.Model(&obj).Where(sql, arguments...)
-	u := input.Set.MergeToType()
-	update := &u
+	update := input.Set.MergeToType()
 	if okHook {
 		var err error
 		db, update, err = v.BeforeCallDb(ctx, db, update)
@@ -191,7 +190,7 @@ func (r *mutationResolver) UpdateCat(ctx context.Context, input model.UpdateCatI
 			return nil, err
 		}
 	}
-	db = db.Updates(*update)
+	db = db.Updates(update)
 	res := &model.UpdateCatPayload{
 		Count: int(db.RowsAffected),
 	}
@@ -399,7 +398,7 @@ func (r *mutationResolver) AddCompany(ctx context.Context, input []*model.Compan
 
 // UpdateCompany is the resolver for the updateCompany field.
 func (r *mutationResolver) UpdateCompany(ctx context.Context, input model.UpdateCompanyInput) (*model.UpdateCompanyPayload, error) {
-	v, okHook := r.Sql.Hooks["UpdateCompany"].(db.AutoGqlHookUpdate[model.Company, model.UpdateCompanyInput, model.UpdateCompanyPayload])
+	v, okHook := r.Sql.Hooks["UpdateCompany"].(db.AutoGqlHookUpdate[model.UpdateCompanyInput, model.UpdateCompanyPayload])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -412,8 +411,7 @@ func (r *mutationResolver) UpdateCompany(ctx context.Context, input model.Update
 	sql, arguments := runtimehelper.CombineSimpleQuery(input.Filter.ExtendsDatabaseQuery(r.Sql.Db, tableName), "AND")
 	obj := model.Company{}
 	db = db.Model(&obj).Where(sql, arguments...)
-	u := input.Set.MergeToType()
-	update := &u
+	update := input.Set.MergeToType()
 	if okHook {
 		var err error
 		db, update, err = v.BeforeCallDb(ctx, db, update)
@@ -421,7 +419,7 @@ func (r *mutationResolver) UpdateCompany(ctx context.Context, input model.Update
 			return nil, err
 		}
 	}
-	db = db.Updates(*update)
+	db = db.Updates(update)
 	res := &model.UpdateCompanyPayload{
 		Count: int(db.RowsAffected),
 	}
@@ -629,7 +627,7 @@ func (r *mutationResolver) AddCreditCard(ctx context.Context, input []*model.Cre
 
 // UpdateCreditCard is the resolver for the updateCreditCard field.
 func (r *mutationResolver) UpdateCreditCard(ctx context.Context, input model.UpdateCreditCardInput) (*model.UpdateCreditCardPayload, error) {
-	v, okHook := r.Sql.Hooks["UpdateCreditCard"].(db.AutoGqlHookUpdate[model.CreditCard, model.UpdateCreditCardInput, model.UpdateCreditCardPayload])
+	v, okHook := r.Sql.Hooks["UpdateCreditCard"].(db.AutoGqlHookUpdate[model.UpdateCreditCardInput, model.UpdateCreditCardPayload])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -642,8 +640,7 @@ func (r *mutationResolver) UpdateCreditCard(ctx context.Context, input model.Upd
 	sql, arguments := runtimehelper.CombineSimpleQuery(input.Filter.ExtendsDatabaseQuery(r.Sql.Db, tableName), "AND")
 	obj := model.CreditCard{}
 	db = db.Model(&obj).Where(sql, arguments...)
-	u := input.Set.MergeToType()
-	update := &u
+	update := input.Set.MergeToType()
 	if okHook {
 		var err error
 		db, update, err = v.BeforeCallDb(ctx, db, update)
@@ -651,7 +648,7 @@ func (r *mutationResolver) UpdateCreditCard(ctx context.Context, input model.Upd
 			return nil, err
 		}
 	}
-	db = db.Updates(*update)
+	db = db.Updates(update)
 	res := &model.UpdateCreditCardPayload{
 		Count: int(db.RowsAffected),
 	}
@@ -883,7 +880,7 @@ func (r *mutationResolver) AddTodo(ctx context.Context, input []*model.TodoInput
 
 // UpdateTodo is the resolver for the updateTodo field.
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTodoInput) (*model.UpdateTodoPayload, error) {
-	v, okHook := r.Sql.Hooks["UpdateTodo"].(db.AutoGqlHookUpdate[model.Todo, model.UpdateTodoInput, model.UpdateTodoPayload])
+	v, okHook := r.Sql.Hooks["UpdateTodo"].(db.AutoGqlHookUpdate[model.UpdateTodoInput, model.UpdateTodoPayload])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -896,8 +893,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTod
 	sql, arguments := runtimehelper.CombineSimpleQuery(input.Filter.ExtendsDatabaseQuery(r.Sql.Db, tableName), "AND")
 	obj := model.Todo{}
 	db = db.Model(&obj).Where(sql, arguments...)
-	u := input.Set.MergeToType()
-	update := &u
+	update := input.Set.MergeToType()
 	if okHook {
 		var err error
 		db, update, err = v.BeforeCallDb(ctx, db, update)
@@ -905,7 +901,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTod
 			return nil, err
 		}
 	}
-	db = db.Updates(*update)
+	db = db.Updates(update)
 	res := &model.UpdateTodoPayload{
 		Count: int(db.RowsAffected),
 	}
@@ -1137,7 +1133,7 @@ func (r *mutationResolver) AddUser(ctx context.Context, input []*model.UserInput
 
 // UpdateUser is the resolver for the updateUser field.
 func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.UpdateUserPayload, error) {
-	v, okHook := r.Sql.Hooks["UpdateUser"].(db.AutoGqlHookUpdate[model.User, model.UpdateUserInput, model.UpdateUserPayload])
+	v, okHook := r.Sql.Hooks["UpdateUser"].(db.AutoGqlHookUpdate[model.UpdateUserInput, model.UpdateUserPayload])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -1150,8 +1146,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUse
 	sql, arguments := runtimehelper.CombineSimpleQuery(input.Filter.ExtendsDatabaseQuery(r.Sql.Db, tableName), "AND")
 	obj := model.User{}
 	db = db.Model(&obj).Where(sql, arguments...)
-	u := input.Set.MergeToType()
-	update := &u
+	update := input.Set.MergeToType()
 	if okHook {
 		var err error
 		db, update, err = v.BeforeCallDb(ctx, db, update)
@@ -1159,7 +1154,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUse
 			return nil, err
 		}
 	}
-	db = db.Updates(*update)
+	db = db.Updates(update)
 	res := &model.UpdateUserPayload{
 		Count: int(db.RowsAffected),
 	}

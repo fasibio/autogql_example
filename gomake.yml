@@ -7,4 +7,4 @@ gen:
     - go run plugin/main.go
 start:
   script: 
-    - go run server.go
+    - go run .

@@ -10,34 +10,34 @@ import (
 )
 
 type AutoGqlHookM interface {
-	model.Cat | model.CreditCard | model.User | model.Company | model.Todo
+	model.CreditCard | model.Company | model.Todo | model.User | model.Cat
 }
 type AutoGqlHookF interface {
-	model.CreditCardFiltersInput | model.UserFiltersInput | model.CompanyFiltersInput | model.TodoFiltersInput | model.CatFiltersInput
+	model.CreditCardFiltersInput | model.CompanyFiltersInput | model.TodoFiltersInput | model.UserFiltersInput | model.CatFiltersInput
 }
 
 type AutoGqlHookQueryO interface {
-	model.UserOrder | model.CompanyOrder | model.TodoOrder | model.CatOrder | model.CreditCardOrder
+	model.CompanyOrder | model.TodoOrder | model.UserOrder | model.CatOrder | model.CreditCardOrder
 }
 
 type AutoGqlHookI interface {
-	model.CreditCardInput | model.UserInput | model.CompanyInput | model.TodoInput | model.CatInput
+	model.TodoInput | model.UserInput | model.CatInput | model.CreditCardInput | model.CompanyInput
 }
 
 type AutoGqlHookU interface {
-	model.UpdateUserInput | model.UpdateCompanyInput | model.UpdateTodoInput | model.UpdateCatInput | model.UpdateCreditCardInput
+	model.UpdateTodoInput | model.UpdateUserInput | model.UpdateCatInput | model.UpdateCreditCardInput | model.UpdateCompanyInput
 }
 
 type AutoGqlHookUP interface {
-	model.UpdateUserPayload | model.UpdateCompanyPayload | model.UpdateTodoPayload | model.UpdateCatPayload | model.UpdateCreditCardPayload
+	model.UpdateUserPayload | model.UpdateCatPayload | model.UpdateCreditCardPayload | model.UpdateCompanyPayload | model.UpdateTodoPayload
 }
 
 type AutoGqlHookDP interface {
-	model.DeleteCompanyPayload | model.DeleteTodoPayload | model.DeleteCatPayload | model.DeleteCreditCardPayload | model.DeleteUserPayload
+	model.DeleteTodoPayload | model.DeleteUserPayload | model.DeleteCatPayload | model.DeleteCreditCardPayload | model.DeleteCompanyPayload
 }
 
 type AutoGqlHookAP interface {
-	model.AddCatPayload | model.AddCreditCardPayload | model.AddUserPayload | model.AddCompanyPayload | model.AddTodoPayload
+	model.AddTodoPayload | model.AddUserPayload | model.AddCatPayload | model.AddCreditCardPayload | model.AddCompanyPayload
 }
 
 type AutoGqlDB struct {
@@ -53,7 +53,7 @@ func NewAutoGqlDB(db *gorm.DB) AutoGqlDB {
 }
 
 func (db *AutoGqlDB) Init() {
-	db.Db.AutoMigrate(&model.Todo{}, &model.Cat{}, &model.CreditCard{}, &model.User{}, &model.Company{})
+	db.Db.AutoMigrate(&model.Todo{}, &model.User{}, &model.Cat{}, &model.CreditCard{}, &model.Company{})
 }
 
 func AddGetHook[T AutoGqlHookM](db *AutoGqlDB, name string, implementation AutoGqlHookGet[T]) {
@@ -68,7 +68,7 @@ func AddAddHook[M AutoGqlHookM, I AutoGqlHookI, AP AutoGqlHookAP](db *AutoGqlDB,
 	db.Hooks[name] = implementation
 }
 
-func AddUpdateHook[M AutoGqlHookM, U AutoGqlHookU, UP AutoGqlHookUP](db *AutoGqlDB, name string, implementation AutoGqlHookUpdate[M, U, UP]) {
+func AddUpdateHook[M AutoGqlHookM, U AutoGqlHookU, UP AutoGqlHookUP](db *AutoGqlDB, name string, implementation AutoGqlHookUpdate[U, UP]) {
 	db.Hooks[name] = implementation
 }
 
@@ -96,9 +96,9 @@ type AutoGqlHookAdd[obj AutoGqlHookM, input AutoGqlHookI, res AutoGqlHookAP] int
 	BeforeReturn(ctx context.Context, db *gorm.DB, res *res) (*res, error)
 }
 
-type AutoGqlHookUpdate[obj AutoGqlHookM, input AutoGqlHookU, res AutoGqlHookUP] interface {
+type AutoGqlHookUpdate[input AutoGqlHookU, res AutoGqlHookUP] interface {
 	Received(ctx context.Context, dbHelper *AutoGqlDB, input *input) (*gorm.DB, input, error)
-	BeforeCallDb(ctx context.Context, db *gorm.DB, data *obj) (*gorm.DB, *obj, error)
+	BeforeCallDb(ctx context.Context, db *gorm.DB, data map[string]interface{}) (*gorm.DB, map[string]interface{}, error)
 	BeforeReturn(ctx context.Context, db *gorm.DB, res *res) (*res, error)
 }
 

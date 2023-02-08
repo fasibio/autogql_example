@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	graph "github.com/fasibio/autogql_example/graph/generated"
+	"github.com/fasibio/autogql_example/graph/generated"
 )
 
 // B is the resolver for the b field.
@@ -21,11 +21,11 @@ func (r *queryResolver) A(ctx context.Context) (*string, error) {
 	panic(fmt.Errorf("not implemented: A - a"))
 }
 
-// Mutation returns graph.MutationResolver implementation.
-func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
+// Mutation returns generated.MutationResolver implementation.
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
-// Query returns graph.QueryResolver implementation.
-func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

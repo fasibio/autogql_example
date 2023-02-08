@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 )
 
 type AddCatPayload struct {
@@ -38,18 +39,18 @@ type BooleanFilterInput struct {
 }
 
 type Cat struct {
-	ID     int    `json:"id" gorm:"primaryKey"`
+	ID     int    `json:"id" gorm:"primaryKey;autoIncrement;"`
 	Name   string `json:"name"`
 	Age    *int   `json:"age"`
-	UserID int    `json:"UserID"`
-	Alive  bool   `json:"alive" gorm:"default:true"`
+	UserID int    `json:"userID"`
+	Alive  *bool  `json:"alive" gorm:"default:true;"`
 }
 
 type CatFiltersInput struct {
 	ID     *IntFilterInput     `json:"id"`
 	Name   *StringFilterInput  `json:"name"`
 	Age    *IntFilterInput     `json:"age"`
-	UserID *IntFilterInput     `json:"UserID"`
+	UserID *IntFilterInput     `json:"userID"`
 	Alive  *BooleanFilterInput `json:"alive"`
 	And    []*CatFiltersInput  `json:"and"`
 	Or     []*CatFiltersInput  `json:"or"`
@@ -57,11 +58,10 @@ type CatFiltersInput struct {
 }
 
 type CatInput struct {
-	ID     int    `json:"id"`
 	Name   string `json:"name"`
 	Age    *int   `json:"age"`
-	UserID int    `json:"UserID"`
-	Alive  bool   `json:"alive"`
+	UserID int    `json:"userID"`
+	Alive  *bool  `json:"alive"`
 }
 
 type CatOrder struct {
@@ -70,10 +70,9 @@ type CatOrder struct {
 }
 
 type CatPatch struct {
-	ID     *int    `json:"id"`
 	Name   *string `json:"name"`
 	Age    *int    `json:"age"`
-	UserID *int    `json:"UserID"`
+	UserID *int    `json:"userID"`
 	Alive  *bool   `json:"alive"`
 }
 
@@ -84,18 +83,20 @@ type CatQueryResult struct {
 }
 
 type Company struct {
-	ID              int      `json:"id" gorm:"primaryKey"`
-	Name            string   `json:"Name"`
-	Description     *string  `json:"description"`
-	MotherCompanyID *int     `json:"motherCompanyID"`
-	MotherCompany   *Company `json:"motherCompany"`
+	ID              int        `json:"id" gorm:"primaryKey;"`
+	Name            string     `json:"name"`
+	Description     *string    `json:"description"`
+	MotherCompanyID *int       `json:"motherCompanyID"`
+	MotherCompany   *Company   `json:"motherCompany"`
+	CreatedAt       *time.Time `json:"createdAt"`
 }
 
 type CompanyFiltersInput struct {
 	ID              *IntFilterInput        `json:"id"`
-	Name            *StringFilterInput     `json:"Name"`
+	Name            *StringFilterInput     `json:"name"`
 	MotherCompanyID *IntFilterInput        `json:"motherCompanyID"`
 	MotherCompany   *CompanyFiltersInput   `json:"motherCompany"`
+	CreatedAt       *TimeFilterInput       `json:"createdAt"`
 	And             []*CompanyFiltersInput `json:"and"`
 	Or              []*CompanyFiltersInput `json:"or"`
 	Not             *CompanyFiltersInput   `json:"not"`
@@ -103,7 +104,7 @@ type CompanyFiltersInput struct {
 
 type CompanyInput struct {
 	ID              int           `json:"id"`
-	Name            string        `json:"Name"`
+	Name            string        `json:"name"`
 	MotherCompanyID *int          `json:"motherCompanyID"`
 	MotherCompany   *CompanyInput `json:"motherCompany"`
 }
@@ -115,7 +116,7 @@ type CompanyOrder struct {
 
 type CompanyPatch struct {
 	ID              *int          `json:"id"`
-	Name            *string       `json:"Name"`
+	Name            *string       `json:"name"`
 	MotherCompanyID *int          `json:"motherCompanyID"`
 	MotherCompany   *CompanyPatch `json:"motherCompany"`
 }
@@ -127,7 +128,7 @@ type CompanyQueryResult struct {
 }
 
 type CreditCard struct {
-	ID     int    `json:"id" gorm:"primaryKey"`
+	ID     int    `json:"id" gorm:"primaryKey;"`
 	Number string `json:"number"`
 	UserID int    `json:"userID"`
 }
@@ -265,12 +266,34 @@ type StringFilterInput struct {
 	NotIn        []*string          `json:"notIn"`
 }
 
+type TimeFilterBetween struct {
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
+}
+
+type TimeFilterInput struct {
+	And     []*time.Time       `json:"and"`
+	Or      []*time.Time       `json:"or"`
+	Not     *TimeFilterInput   `json:"not"`
+	Eq      *time.Time         `json:"eq"`
+	Ne      *time.Time         `json:"ne"`
+	Gt      *time.Time         `json:"gt"`
+	Gte     *time.Time         `json:"gte"`
+	Lt      *time.Time         `json:"lt"`
+	Lte     *time.Time         `json:"lte"`
+	Null    *bool              `json:"null"`
+	NotNull *bool              `json:"notNull"`
+	In      []*time.Time       `json:"in"`
+	NotIn   []*time.Time       `json:"notIn"`
+	Between *TimeFilterBetween `json:"between"`
+}
+
 type Todo struct {
-	ID          int     `json:"id" gorm:"primaryKey"`
+	ID          int     `json:"id" gorm:"primaryKey;"`
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
 	Done        bool    `json:"done"`
-	Users       []*User `json:"users" gorm:"many2many:user_todos"`
+	Users       []*User `json:"users" gorm:"many2many:user_todos;"`
 }
 
 type TodoFiltersInput struct {
@@ -367,11 +390,11 @@ type UpdateUserPayload struct {
 }
 
 type User struct {
-	ID          int           `json:"id" gorm:"primaryKey"`
+	ID          int           `json:"id" gorm:"primaryKey;"`
 	Name        string        `json:"name"`
 	CompanyID   *int          `json:"companyID"`
 	Company     *Company      `json:"company"`
-	TodoList    []*Todo       `json:"todoList" gorm:"many2many:user_todos"`
+	TodoList    []*Todo       `json:"todoList" gorm:"many2many:user_todos;"`
 	Cat         []*Cat        `json:"cat"`
 	CreditCards []*CreditCard `json:"creditCards"`
 }
@@ -431,7 +454,7 @@ const (
 	CatOrderableID     CatOrderable = "id"
 	CatOrderableName   CatOrderable = "name"
 	CatOrderableAge    CatOrderable = "age"
-	CatOrderableUserID CatOrderable = "UserID"
+	CatOrderableUserID CatOrderable = "userID"
 	CatOrderableAlive  CatOrderable = "alive"
 )
 
@@ -476,7 +499,7 @@ type CompanyOrderable string
 
 const (
 	CompanyOrderableID              CompanyOrderable = "id"
-	CompanyOrderableName            CompanyOrderable = "Name"
+	CompanyOrderableName            CompanyOrderable = "name"
 	CompanyOrderableMotherCompanyID CompanyOrderable = "motherCompanyID"
 )
 
