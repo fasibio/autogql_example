@@ -476,3 +476,49 @@ func (d *TimeFilterInput) ExtendsDatabaseQuery(db *gorm.DB, fieldName string) []
 
 	return res
 }
+
+func (d *IDFilterInput) ExtendsDatabaseQuery(db *gorm.DB, fieldName string) []runtimehelper.ConditionElement {
+
+	res := make([]runtimehelper.ConditionElement, 0)
+
+	if d.And != nil {
+		tmp := make([]runtimehelper.ConditionElement, 0)
+		for _, v := range d.And {
+			tmp = append(tmp, runtimehelper.Equal(fieldName, *v))
+		}
+		res = append(res, tmp...)
+	}
+
+	if d.Eq != nil {
+		res = append(res, runtimehelper.Equal(fieldName, *d.Eq))
+	}
+
+	if d.In != nil {
+		res = append(res, runtimehelper.In(fieldName, d.In))
+	}
+
+	if d.Ne != nil {
+		res = append(res, runtimehelper.NotEqual(fieldName, *d.Ne))
+	}
+	if d.Not != nil {
+		res = append(res, runtimehelper.Complex(runtimehelper.RelationNot, d.Not.ExtendsDatabaseQuery(db, fieldName)...))
+	}
+
+	if d.NotNull != nil && *d.NotNull {
+		res = append(res, runtimehelper.NotNull(fieldName, *d.NotNull))
+	}
+
+	if d.Null != nil && *d.Null {
+		res = append(res, runtimehelper.Null(fieldName, *d.Null))
+	}
+
+	if d.Or != nil {
+		tmp := make([]runtimehelper.ConditionElement, 0)
+		for _, v := range d.Or {
+			tmp = append(tmp, runtimehelper.Equal(fieldName, *v))
+		}
+		res = append(res, runtimehelper.Complex(runtimehelper.RelationOr, tmp...))
+	}
+
+	return res
+}

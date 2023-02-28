@@ -15,7 +15,7 @@ import (
 
 // GetCat is the resolver for the getCat field.
 func (r *queryResolver) GetCat(ctx context.Context, id int) (*model.Cat, error) {
-	v, okHook := r.Sql.Hooks["GetCat"].(db.AutoGqlHookGet[model.Cat])
+	v, okHook := r.Sql.Hooks["GetCat"].(db.AutoGqlHookGet[model.Cat, any])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -244,7 +244,7 @@ func (r *mutationResolver) DeleteCat(ctx context.Context, filter model.CatFilter
 
 // GetCompany is the resolver for the getCompany field.
 func (r *queryResolver) GetCompany(ctx context.Context, id int) (*model.Company, error) {
-	v, okHook := r.Sql.Hooks["GetCompany"].(db.AutoGqlHookGet[model.Company])
+	v, okHook := r.Sql.Hooks["GetCompany"].(db.AutoGqlHookGet[model.Company, any])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -473,7 +473,7 @@ func (r *mutationResolver) DeleteCompany(ctx context.Context, filter model.Compa
 
 // GetCreditCard is the resolver for the getCreditCard field.
 func (r *queryResolver) GetCreditCard(ctx context.Context, id int) (*model.CreditCard, error) {
-	v, okHook := r.Sql.Hooks["GetCreditCard"].(db.AutoGqlHookGet[model.CreditCard])
+	v, okHook := r.Sql.Hooks["GetCreditCard"].(db.AutoGqlHookGet[model.CreditCard, any])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -702,7 +702,7 @@ func (r *mutationResolver) DeleteCreditCard(ctx context.Context, filter model.Cr
 
 // GetTodo is the resolver for the getTodo field.
 func (r *queryResolver) GetTodo(ctx context.Context, id int) (*model.Todo, error) {
-	v, okHook := r.Sql.Hooks["GetTodo"].(db.AutoGqlHookGet[model.Todo])
+	v, okHook := r.Sql.Hooks["GetTodo"].(db.AutoGqlHookGet[model.Todo, any])
 	db := r.Sql.Db
 	if okHook {
 		var err error
@@ -955,7 +955,7 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, filter model.TodoFilt
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, id int) (*model.User, error) {
-	v, okHook := r.Sql.Hooks["GetUser"].(db.AutoGqlHookGet[model.User])
+	v, okHook := r.Sql.Hooks["GetUser"].(db.AutoGqlHookGet[model.User, any])
 	db := r.Sql.Db
 	if okHook {
 		var err error

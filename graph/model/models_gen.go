@@ -85,7 +85,7 @@ type CatQueryResult struct {
 type Company struct {
 	ID              int        `json:"id" gorm:"primaryKey;"`
 	Name            string     `json:"name"`
-	Description     *string    `json:"description"`
+	Description     *string    `json:"description" gorm:"-;"`
 	MotherCompanyID *int       `json:"motherCompanyID"`
 	MotherCompany   *Company   `json:"motherCompany"`
 	CreatedAt       *time.Time `json:"createdAt"`

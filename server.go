@@ -26,7 +26,7 @@ func main() {
 	}
 	dbCon = dbCon.Debug()
 	dborm := db.NewAutoGqlDB(dbCon)
-	db.AddGetHook[model.User](&dborm, "GetUser", GetUserHook{})
+	// db.AddGetHook[model.User](&dborm, "GetUser", GetUserHook{})
 	db.AddQueryHook[model.Company, model.CompanyFiltersInput, model.CompanyOrder](&dborm, "QueryCompany", QueryCompanyHook{})
 	db.AddAddHook[model.Company, model.CompanyInput, model.AddCompanyPayload](&dborm, "AddCompany", AddCompanyHook{})
 	db.AddUpdateHook[model.Company, model.UpdateCompanyInput, model.UpdateCompanyPayload](&dborm, "UpdateCompany", UpdateCompanyHook{})

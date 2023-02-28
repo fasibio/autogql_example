@@ -1638,8 +1638,8 @@ input CatPatch{
 }
 
 input UpdateCatInput{
-  filter: CatFiltersInput
-  set: CatPatch
+  filter: CatFiltersInput!
+  set: CatPatch!
 }
 
 type AddCatPayload{
@@ -1686,7 +1686,7 @@ input CatFiltersInput{
   not: CatFiltersInput
 }
 extend type Query {
-  getCat(id: Int!): Cat 
+  getCat(id: Int!, ): Cat 
   queryCat(filter: CatFiltersInput, order: CatOrder, first: Int, offset: Int ): CatQueryResult 
 }
 extend type Mutation {
@@ -1710,8 +1710,8 @@ input CompanyPatch{
 }
 
 input UpdateCompanyInput{
-  filter: CompanyFiltersInput
-  set: CompanyPatch
+  filter: CompanyFiltersInput!
+  set: CompanyPatch!
 }
 
 type AddCompanyPayload{
@@ -1756,7 +1756,7 @@ input CompanyFiltersInput{
   not: CompanyFiltersInput
 }
 extend type Query {
-  getCompany(id: Int!): Company 
+  getCompany(id: Int!, ): Company 
   queryCompany(filter: CompanyFiltersInput, order: CompanyOrder, first: Int, offset: Int ): CompanyQueryResult 
 }
 extend type Mutation {
@@ -1778,8 +1778,8 @@ input CreditCardPatch{
 }
 
 input UpdateCreditCardInput{
-  filter: CreditCardFiltersInput
-  set: CreditCardPatch
+  filter: CreditCardFiltersInput!
+  set: CreditCardPatch!
 }
 
 type AddCreditCardPayload{
@@ -1822,7 +1822,7 @@ input CreditCardFiltersInput{
   not: CreditCardFiltersInput
 }
 extend type Query {
-  getCreditCard(id: Int!): CreditCard 
+  getCreditCard(id: Int!, ): CreditCard 
   queryCreditCard(filter: CreditCardFiltersInput, order: CreditCardOrder, first: Int, offset: Int ): CreditCardQueryResult 
 }
 extend type Mutation {
@@ -1848,8 +1848,8 @@ input TodoPatch{
 }
 
 input UpdateTodoInput{
-  filter: TodoFiltersInput
-  set: TodoPatch
+  filter: TodoFiltersInput!
+  set: TodoPatch!
 }
 
 type AddTodoPayload{
@@ -1900,7 +1900,7 @@ input TodoFiltersInput{
   not: TodoFiltersInput
 }
 extend type Query {
-  getTodo(id: Int!): Todo 
+  getTodo(id: Int!, ): Todo 
   queryTodo(filter: TodoFiltersInput, order: TodoOrder, first: Int, offset: Int ): TodoQueryResult 
 }
 extend type Mutation {
@@ -1931,8 +1931,8 @@ input UserPatch{
 }
 
 input UpdateUserInput{
-  filter: UserFiltersInput
-  set: UserPatch
+  filter: UserFiltersInput!
+  set: UserPatch!
 }
 
 type AddUserPayload{
@@ -1984,7 +1984,7 @@ input UserFiltersInput{
   not: UserFiltersInput
 }
 extend type Query {
-  getUser(id: Int!): User @A @B
+  getUser(id: Int!, ): User @A @B
   queryUser(filter: UserFiltersInput, order: UserOrder, first: Int, offset: Int ): UserQueryResult @A @C
 }
 extend type Mutation {
@@ -12149,7 +12149,7 @@ func (ec *executionContext) unmarshalInputUpdateCatInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			it.Filter, err = ec.unmarshalOCatFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCatFiltersInput(ctx, v)
+			it.Filter, err = ec.unmarshalNCatFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCatFiltersInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12157,7 +12157,7 @@ func (ec *executionContext) unmarshalInputUpdateCatInput(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("set"))
-			it.Set, err = ec.unmarshalOCatPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCatPatch(ctx, v)
+			it.Set, err = ec.unmarshalNCatPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCatPatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12185,7 +12185,7 @@ func (ec *executionContext) unmarshalInputUpdateCompanyInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			it.Filter, err = ec.unmarshalOCompanyFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyFiltersInput(ctx, v)
+			it.Filter, err = ec.unmarshalNCompanyFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyFiltersInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12193,7 +12193,7 @@ func (ec *executionContext) unmarshalInputUpdateCompanyInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("set"))
-			it.Set, err = ec.unmarshalOCompanyPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyPatch(ctx, v)
+			it.Set, err = ec.unmarshalNCompanyPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyPatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12221,7 +12221,7 @@ func (ec *executionContext) unmarshalInputUpdateCreditCardInput(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			it.Filter, err = ec.unmarshalOCreditCardFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardFiltersInput(ctx, v)
+			it.Filter, err = ec.unmarshalNCreditCardFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardFiltersInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12229,7 +12229,7 @@ func (ec *executionContext) unmarshalInputUpdateCreditCardInput(ctx context.Cont
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("set"))
-			it.Set, err = ec.unmarshalOCreditCardPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardPatch(ctx, v)
+			it.Set, err = ec.unmarshalNCreditCardPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardPatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12257,7 +12257,7 @@ func (ec *executionContext) unmarshalInputUpdateTodoInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			it.Filter, err = ec.unmarshalOTodoFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTodoFiltersInput(ctx, v)
+			it.Filter, err = ec.unmarshalNTodoFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTodoFiltersInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12265,7 +12265,7 @@ func (ec *executionContext) unmarshalInputUpdateTodoInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("set"))
-			it.Set, err = ec.unmarshalOTodoPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTodoPatch(ctx, v)
+			it.Set, err = ec.unmarshalNTodoPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTodoPatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12293,7 +12293,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-			it.Filter, err = ec.unmarshalOUserFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUserFiltersInput(ctx, v)
+			it.Filter, err = ec.unmarshalNUserFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUserFiltersInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12301,7 +12301,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("set"))
-			it.Set, err = ec.unmarshalOUserPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUserPatch(ctx, v)
+			it.Set, err = ec.unmarshalNUserPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUserPatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14596,6 +14596,11 @@ func (ec *executionContext) unmarshalNCatFiltersInput2githubᚗcomᚋfasibioᚋa
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCatFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCatFiltersInput(ctx context.Context, v interface{}) (*model.CatFiltersInput, error) {
+	res, err := ec.unmarshalInputCatFiltersInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCatInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCatInputᚄ(ctx context.Context, v interface{}) ([]*model.CatInput, error) {
 	var vSlice []interface{}
 	if v != nil {
@@ -14696,6 +14701,11 @@ func (ec *executionContext) unmarshalNCompanyFiltersInput2githubᚗcomᚋfasibio
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCompanyFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyFiltersInput(ctx context.Context, v interface{}) (*model.CompanyFiltersInput, error) {
+	res, err := ec.unmarshalInputCompanyFiltersInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCompanyInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyInputᚄ(ctx context.Context, v interface{}) ([]*model.CompanyInput, error) {
 	var vSlice []interface{}
 	if v != nil {
@@ -14715,6 +14725,11 @@ func (ec *executionContext) unmarshalNCompanyInput2ᚕᚖgithubᚗcomᚋfasibio�
 
 func (ec *executionContext) unmarshalNCompanyInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyInput(ctx context.Context, v interface{}) (*model.CompanyInput, error) {
 	res, err := ec.unmarshalInputCompanyInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCompanyPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCompanyPatch(ctx context.Context, v interface{}) (*model.CompanyPatch, error) {
+	res, err := ec.unmarshalInputCompanyPatch(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -14789,6 +14804,11 @@ func (ec *executionContext) marshalNCreditCard2ᚖgithubᚗcomᚋfasibioᚋautog
 func (ec *executionContext) unmarshalNCreditCardFiltersInput2githubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardFiltersInput(ctx context.Context, v interface{}) (model.CreditCardFiltersInput, error) {
 	res, err := ec.unmarshalInputCreditCardFiltersInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreditCardFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardFiltersInput(ctx context.Context, v interface{}) (*model.CreditCardFiltersInput, error) {
+	res, err := ec.unmarshalInputCreditCardFiltersInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreditCardInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardInputᚄ(ctx context.Context, v interface{}) ([]*model.CreditCardInput, error) {
@@ -15654,14 +15674,6 @@ func (ec *executionContext) unmarshalOCatPatch2ᚕᚖgithubᚗcomᚋfasibioᚋau
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOCatPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCatPatch(ctx context.Context, v interface{}) (*model.CatPatch, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputCatPatch(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalOCatQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCatQueryResult(ctx context.Context, sel ast.SelectionSet, v *model.CatQueryResult) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -15895,14 +15907,6 @@ func (ec *executionContext) unmarshalOCreditCardPatch2ᚕᚖgithubᚗcomᚋfasib
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalOCreditCardPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardPatch(ctx context.Context, v interface{}) (*model.CreditCardPatch, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputCreditCardPatch(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOCreditCardQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardQueryResult(ctx context.Context, sel ast.SelectionSet, v *model.CreditCardQueryResult) graphql.Marshaler {
@@ -16328,14 +16332,6 @@ func (ec *executionContext) unmarshalOTodoPatch2ᚕᚖgithubᚗcomᚋfasibioᚋa
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOTodoPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTodoPatch(ctx context.Context, v interface{}) (*model.TodoPatch, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputTodoPatch(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalOTodoQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐTodoQueryResult(ctx context.Context, sel ast.SelectionSet, v *model.TodoQueryResult) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -16516,14 +16512,6 @@ func (ec *executionContext) unmarshalOUserPatch2ᚕᚖgithubᚗcomᚋfasibioᚋa
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalOUserPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUserPatch(ctx context.Context, v interface{}) (*model.UserPatch, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputUserPatch(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUserQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUserQueryResult(ctx context.Context, sel ast.SelectionSet, v *model.UserQueryResult) graphql.Marshaler {

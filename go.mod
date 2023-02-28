@@ -7,7 +7,7 @@ require (
 	github.com/fasibio/autogql v0.0.0-20230126192214-dffd18527d9c
 	github.com/vektah/gqlparser/v2 v2.5.1
 	gorm.io/driver/sqlite v1.4.4
-	gorm.io/gorm v1.24.3
+	gorm.io/gorm v1.24.5
 )
 
 require (
