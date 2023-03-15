@@ -66,6 +66,13 @@ type Todo @SQL {
   description: String!
   done: Boolean!
   users: [User]@SQL_GORM(value:"many2many:user_todos")
+  help: Help
+}
+
+type Help @SQL {
+  id: Int! @SQL_PRIMARY @SQL_GORM(value: "autoIncrement")
+  text: String
+  todoID: Int!
 }
 
 

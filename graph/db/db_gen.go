@@ -9,35 +9,80 @@ import (
 	"gorm.io/gorm"
 )
 
+type QueryName string
+type GetName string
+type AddName string
+type UpdateName string
+type DeleteName string
+type Many2ManyName string
+
+const (
+	GetCat           GetName       = "GetCat"
+	QueryCat         QueryName     = "QueryCat"
+	AddCat           AddName       = "AddCat"
+	UpdateCat        UpdateName    = "UpdateCat"
+	DeleteCat        DeleteName    = "DeleteCat"
+	GetCompany       GetName       = "GetCompany"
+	QueryCompany     QueryName     = "QueryCompany"
+	AddCompany       AddName       = "AddCompany"
+	UpdateCompany    UpdateName    = "UpdateCompany"
+	DeleteCompany    DeleteName    = "DeleteCompany"
+	GetCreditCard    GetName       = "GetCreditCard"
+	QueryCreditCard  QueryName     = "QueryCreditCard"
+	AddCreditCard    AddName       = "AddCreditCard"
+	UpdateCreditCard UpdateName    = "UpdateCreditCard"
+	DeleteCreditCard DeleteName    = "DeleteCreditCard"
+	GetHelp          GetName       = "GetHelp"
+	QueryHelp        QueryName     = "QueryHelp"
+	AddHelp          AddName       = "AddHelp"
+	UpdateHelp       UpdateName    = "UpdateHelp"
+	DeleteHelp       DeleteName    = "DeleteHelp"
+	AddUser2Todos    Many2ManyName = "AddUser2Todos"
+	GetTodo          GetName       = "GetTodo"
+	QueryTodo        QueryName     = "QueryTodo"
+	AddTodo          AddName       = "AddTodo"
+	UpdateTodo       UpdateName    = "UpdateTodo"
+	DeleteTodo       DeleteName    = "DeleteTodo"
+	AddTodo2Users    Many2ManyName = "AddTodo2Users"
+	GetUser          GetName       = "GetUser"
+	QueryUser        QueryName     = "QueryUser"
+	AddUser          AddName       = "AddUser"
+	UpdateUser       UpdateName    = "UpdateUser"
+	DeleteUser       DeleteName    = "DeleteUser"
+)
+
 type AutoGqlHookM interface {
-	model.Company | model.Todo | model.User | model.Cat | model.CreditCard
+	model.User | model.Cat | model.CreditCard | model.Help | model.Company | model.Todo
 }
 type AutoGqlHookF interface {
-	model.UserFiltersInput | model.CatFiltersInput | model.CreditCardFiltersInput | model.CompanyFiltersInput | model.TodoFiltersInput
+	model.CreditCardFiltersInput | model.HelpFiltersInput | model.CompanyFiltersInput | model.TodoFiltersInput | model.UserFiltersInput | model.CatFiltersInput
+}
+type AutoGqlHookM2M interface {
+	model.TodoRef2UsersInput | model.UserRef2TodosInput
 }
 
 type AutoGqlHookQueryO interface {
-	model.CatOrder | model.CreditCardOrder | model.CompanyOrder | model.TodoOrder | model.UserOrder
+	model.CreditCardOrder | model.HelpOrder | model.CompanyOrder | model.TodoOrder | model.UserOrder | model.CatOrder
 }
 
 type AutoGqlHookI interface {
-	model.TodoInput | model.UserInput | model.CatInput | model.CreditCardInput | model.CompanyInput
+	model.CreditCardInput | model.HelpInput | model.CompanyInput | model.TodoInput | model.UserInput | model.CatInput
 }
 
 type AutoGqlHookU interface {
-	model.UpdateCompanyInput | model.UpdateTodoInput | model.UpdateUserInput | model.UpdateCatInput | model.UpdateCreditCardInput
+	model.UpdateUserInput | model.UpdateCatInput | model.UpdateCreditCardInput | model.UpdateHelpInput | model.UpdateCompanyInput | model.UpdateTodoInput
 }
 
 type AutoGqlHookUP interface {
-	model.UpdateUserPayload | model.UpdateCatPayload | model.UpdateCreditCardPayload | model.UpdateCompanyPayload | model.UpdateTodoPayload
+	model.UpdateTodoPayload | model.UpdateUserPayload | model.UpdateCatPayload | model.UpdateCreditCardPayload | model.UpdateHelpPayload | model.UpdateCompanyPayload
 }
 
 type AutoGqlHookDP interface {
-	model.DeleteCompanyPayload | model.DeleteTodoPayload | model.DeleteUserPayload | model.DeleteCatPayload | model.DeleteCreditCardPayload
+	model.DeleteUserPayload | model.DeleteCatPayload | model.DeleteCreditCardPayload | model.DeleteHelpPayload | model.DeleteCompanyPayload | model.DeleteTodoPayload
 }
 
 type AutoGqlHookAP interface {
-	model.AddTodoPayload | model.AddUserPayload | model.AddCatPayload | model.AddCreditCardPayload | model.AddCompanyPayload
+	model.AddTodoPayload | model.AddUserPayload | model.AddCatPayload | model.AddCreditCardPayload | model.AddHelpPayload | model.AddCompanyPayload
 }
 
 type AutoGqlDB struct {
@@ -53,27 +98,31 @@ func NewAutoGqlDB(db *gorm.DB) AutoGqlDB {
 }
 
 func (db *AutoGqlDB) Init() {
-	db.Db.AutoMigrate(&model.Company{}, &model.Todo{}, &model.User{}, &model.Cat{}, &model.CreditCard{})
+	db.Db.AutoMigrate(&model.CreditCard{}, &model.Help{}, &model.Company{}, &model.Todo{}, &model.User{}, &model.Cat{})
 }
 
-func AddGetHook[T AutoGqlHookM, I any](db *AutoGqlDB, name string, implementation AutoGqlHookGet[T, I]) {
-	db.Hooks[name] = implementation
+func AddGetHook[T AutoGqlHookM, I any](db *AutoGqlDB, name GetName, implementation AutoGqlHookGet[T, I]) {
+	db.Hooks[string(name)] = implementation
 }
 
-func AddQueryHook[M AutoGqlHookM, F AutoGqlHookF, O AutoGqlHookQueryO](db *AutoGqlDB, name string, implementation AutoGqlHookQuery[M, F, O]) {
-	db.Hooks[name] = implementation
+func AddQueryHook[M AutoGqlHookM, F AutoGqlHookF, O AutoGqlHookQueryO](db *AutoGqlDB, name QueryName, implementation AutoGqlHookQuery[M, F, O]) {
+	db.Hooks[string(name)] = implementation
 }
 
-func AddAddHook[M AutoGqlHookM, I AutoGqlHookI, AP AutoGqlHookAP](db *AutoGqlDB, name string, implementation AutoGqlHookAdd[M, I, AP]) {
-	db.Hooks[name] = implementation
+func AddAddHook[M AutoGqlHookM, I AutoGqlHookI, AP AutoGqlHookAP](db *AutoGqlDB, name AddName, implementation AutoGqlHookAdd[M, I, AP]) {
+	db.Hooks[string(name)] = implementation
 }
 
-func AddUpdateHook[M AutoGqlHookM, U AutoGqlHookU, UP AutoGqlHookUP](db *AutoGqlDB, name string, implementation AutoGqlHookUpdate[U, UP]) {
-	db.Hooks[name] = implementation
+func AddUpdateHook[M AutoGqlHookM, U AutoGqlHookU, UP AutoGqlHookUP](db *AutoGqlDB, name UpdateName, implementation AutoGqlHookUpdate[U, UP]) {
+	db.Hooks[string(name)] = implementation
 }
 
-func AddDeleteHook[M AutoGqlHookM, F AutoGqlHookF, DP AutoGqlHookDP](db *AutoGqlDB, name string, implementation AutoGqlHookDelete[M, F, DP]) {
-	db.Hooks[name] = implementation
+func AddMany2ManyHook[M AutoGqlHookM, U AutoGqlHookU, UP AutoGqlHookUP](db *AutoGqlDB, name Many2ManyName, implementation AutoGqlHookUpdate[U, UP]) {
+	db.Hooks[string(name)] = implementation
+}
+
+func AddDeleteHook[F AutoGqlHookF, DP AutoGqlHookDP](db *AutoGqlDB, name DeleteName, implementation AutoGqlHookDelete[F, DP]) {
+	db.Hooks[string(name)] = implementation
 }
 
 type AutoGqlHookGet[obj AutoGqlHookM, identifier any] interface {
@@ -83,11 +132,41 @@ type AutoGqlHookGet[obj AutoGqlHookM, identifier any] interface {
 	BeforeReturn(ctx context.Context, data *obj, db *gorm.DB) (*obj, error)
 }
 
+type DefaultGetHook[obj AutoGqlHookM, identifier any] struct{}
+
+func (d DefaultGetHook[obj, identifier]) Received(ctx context.Context, dbHelper *AutoGqlDB, id ...identifier) (*gorm.DB, error) {
+	return dbHelper.Db, nil
+}
+func (d DefaultGetHook[obj, identifier]) BeforeCallDb(ctx context.Context, db *gorm.DB) (*gorm.DB, error) {
+	return db, nil
+}
+func (d DefaultGetHook[obj, identifier]) AfterCallDb(ctx context.Context, data *obj) (*obj, error) {
+	return data, nil
+}
+func (d DefaultGetHook[obj, identifier]) BeforeReturn(ctx context.Context, data *obj, db *gorm.DB) (*obj, error) {
+	return data, nil
+}
+
 type AutoGqlHookQuery[obj AutoGqlHookM, filter AutoGqlHookF, order AutoGqlHookQueryO] interface {
 	Received(ctx context.Context, dbHelper *AutoGqlDB, filter *filter, order *order, first, offset *int) (*gorm.DB, *filter, *order, *int, *int, error)
 	BeforeCallDb(ctx context.Context, db *gorm.DB) (*gorm.DB, error)
 	AfterCallDb(ctx context.Context, data []*obj) ([]*obj, error)
 	BeforeReturn(ctx context.Context, data []*obj, db *gorm.DB) ([]*obj, error)
+}
+
+type DefaultQueryHook[obj AutoGqlHookM, filter AutoGqlHookF, order AutoGqlHookQueryO] struct{}
+
+func (d DefaultQueryHook[obj, filterType, orderType]) Received(ctx context.Context, dbHelper *AutoGqlDB, filter *filterType, order *orderType, first, offset *int) (*gorm.DB, *filterType, *orderType, *int, *int, error) {
+	return dbHelper.Db, filter, order, first, offset, nil
+}
+func (d DefaultQueryHook[obj, filter, order]) BeforeCallDb(ctx context.Context, db *gorm.DB) (*gorm.DB, error) {
+	return db, nil
+}
+func (d DefaultQueryHook[obj, filter, order]) AfterCallDb(ctx context.Context, data []*obj) ([]*obj, error) {
+	return data, nil
+}
+func (d DefaultQueryHook[obj, filter, order]) BeforeReturn(ctx context.Context, data []*obj, db *gorm.DB) ([]*obj, error) {
+	return data, nil
 }
 
 type AutoGqlHookAdd[obj AutoGqlHookM, input AutoGqlHookI, res AutoGqlHookAP] interface {
@@ -96,14 +175,68 @@ type AutoGqlHookAdd[obj AutoGqlHookM, input AutoGqlHookI, res AutoGqlHookAP] int
 	BeforeReturn(ctx context.Context, db *gorm.DB, res *res) (*res, error)
 }
 
+type DefaultAddHook[obj AutoGqlHookM, input AutoGqlHookI, res AutoGqlHookAP] struct{}
+
+func (d DefaultAddHook[obj, inputType, resType]) Received(ctx context.Context, dbHelper *AutoGqlDB, input []*inputType) (*gorm.DB, []*inputType, error) {
+	return dbHelper.Db, input, nil
+}
+func (d DefaultAddHook[obj, inputType, resType]) BeforeCallDb(ctx context.Context, db *gorm.DB, data []obj) (*gorm.DB, []obj, error) {
+	return db, data, nil
+}
+func (d DefaultAddHook[obj, inputType, resType]) BeforeReturn(ctx context.Context, db *gorm.DB, res *resType) (*resType, error) {
+	return res, nil
+}
+
 type AutoGqlHookUpdate[input AutoGqlHookU, res AutoGqlHookUP] interface {
 	Received(ctx context.Context, dbHelper *AutoGqlDB, input *input) (*gorm.DB, input, error)
 	BeforeCallDb(ctx context.Context, db *gorm.DB, data map[string]interface{}) (*gorm.DB, map[string]interface{}, error)
 	BeforeReturn(ctx context.Context, db *gorm.DB, res *res) (*res, error)
 }
 
-type AutoGqlHookDelete[obj AutoGqlHookM, input AutoGqlHookF, res AutoGqlHookDP] interface {
+type AutoGqlHookMany2Many[input AutoGqlHookM2M, res AutoGqlHookUP] interface {
 	Received(ctx context.Context, dbHelper *AutoGqlDB, input *input) (*gorm.DB, input, error)
 	BeforeCallDb(ctx context.Context, db *gorm.DB) (*gorm.DB, error)
 	BeforeReturn(ctx context.Context, db *gorm.DB, res *res) (*res, error)
+}
+
+type DefaultMany2ManyHook[inputAutoGqlHookM2M, res AutoGqlHookUP] struct{}
+
+func (d DefaultMany2ManyHook[inputType, resType]) Received(ctx context.Context, dbHelper *AutoGqlDB, input *inputType) (*gorm.DB, inputType, error) {
+	return dbHelper.Db, *input, nil
+}
+func (d DefaultMany2ManyHook[inputType, resType]) BeforeCallDb(ctx context.Context, db *gorm.DB) (*gorm.DB, error) {
+	return db, nil
+}
+func (d DefaultMany2ManyHook[inputType, resType]) BeforeReturn(ctx context.Context, db *gorm.DB, res *resType) (*resType, error) {
+	return res, nil
+}
+
+type DefaultUpdateHook[input AutoGqlHookU, res AutoGqlHookUP] struct{}
+
+func (d DefaultUpdateHook[inputType, resType]) Received(ctx context.Context, dbHelper *AutoGqlDB, input *inputType) (*gorm.DB, inputType, error) {
+	return dbHelper.Db, *input, nil
+}
+func (d DefaultUpdateHook[inputType, resType]) BeforeCallDb(ctx context.Context, db *gorm.DB, data map[string]interface{}) (*gorm.DB, map[string]interface{}, error) {
+	return db, data, nil
+}
+func (d DefaultUpdateHook[inputType, resType]) BeforeReturn(ctx context.Context, db *gorm.DB, res *resType) (*resType, error) {
+	return res, nil
+}
+
+type AutoGqlHookDelete[input AutoGqlHookF, res AutoGqlHookDP] interface {
+	Received(ctx context.Context, dbHelper *AutoGqlDB, input *input) (*gorm.DB, input, error)
+	BeforeCallDb(ctx context.Context, db *gorm.DB) (*gorm.DB, error)
+	BeforeReturn(ctx context.Context, db *gorm.DB, res *res) (*res, error)
+}
+
+type DefaultDeleteHook[input AutoGqlHookF, res AutoGqlHookDP] struct{}
+
+func (d DefaultDeleteHook[inputType, resType]) Received(ctx context.Context, dbHelper *AutoGqlDB, input *inputType) (*gorm.DB, inputType, error) {
+	return dbHelper.Db, *input, nil
+}
+func (d DefaultDeleteHook[inputType, resType]) BeforeCallDb(ctx context.Context, db *gorm.DB) (*gorm.DB, error) {
+	return db, nil
+}
+func (d DefaultDeleteHook[inputType, resType]) BeforeReturn(ctx context.Context, db *gorm.DB, res *resType) (*resType, error) {
+	return res, nil
 }

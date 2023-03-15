@@ -40,11 +40,13 @@ type ResolverRoot interface {
 	AddCatPayload() AddCatPayloadResolver
 	AddCompanyPayload() AddCompanyPayloadResolver
 	AddCreditCardPayload() AddCreditCardPayloadResolver
+	AddHelpPayload() AddHelpPayloadResolver
 	AddTodoPayload() AddTodoPayloadResolver
 	AddUserPayload() AddUserPayloadResolver
 	DeleteCatPayload() DeleteCatPayloadResolver
 	DeleteCompanyPayload() DeleteCompanyPayloadResolver
 	DeleteCreditCardPayload() DeleteCreditCardPayloadResolver
+	DeleteHelpPayload() DeleteHelpPayloadResolver
 	DeleteTodoPayload() DeleteTodoPayloadResolver
 	DeleteUserPayload() DeleteUserPayloadResolver
 	Mutation() MutationResolver
@@ -52,6 +54,7 @@ type ResolverRoot interface {
 	UpdateCatPayload() UpdateCatPayloadResolver
 	UpdateCompanyPayload() UpdateCompanyPayloadResolver
 	UpdateCreditCardPayload() UpdateCreditCardPayloadResolver
+	UpdateHelpPayload() UpdateHelpPayloadResolver
 	UpdateTodoPayload() UpdateTodoPayloadResolver
 	UpdateUserPayload() UpdateUserPayloadResolver
 }
@@ -78,6 +81,10 @@ type ComplexityRoot struct {
 
 	AddCreditCardPayload struct {
 		CreditCard func(childComplexity int, filter *model.CreditCardFiltersInput, order *model.CreditCardOrder, first *int, offset *int) int
+	}
+
+	AddHelpPayload struct {
+		Help func(childComplexity int, filter *model.HelpFiltersInput, order *model.HelpOrder, first *int, offset *int) int
 	}
 
 	AddTodoPayload struct {
@@ -147,6 +154,12 @@ type ComplexityRoot struct {
 		Msg        func(childComplexity int) int
 	}
 
+	DeleteHelpPayload struct {
+		Count func(childComplexity int) int
+		Help  func(childComplexity int, filter *model.HelpFiltersInput, order *model.HelpOrder, first *int, offset *int) int
+		Msg   func(childComplexity int) int
+	}
+
 	DeleteTodoPayload struct {
 		Count func(childComplexity int) int
 		Msg   func(childComplexity int) int
@@ -159,10 +172,23 @@ type ComplexityRoot struct {
 		User  func(childComplexity int, filter *model.UserFiltersInput, order *model.UserOrder, first *int, offset *int) int
 	}
 
+	Help struct {
+		ID     func(childComplexity int) int
+		Text   func(childComplexity int) int
+		TodoID func(childComplexity int) int
+	}
+
+	HelpQueryResult struct {
+		Count      func(childComplexity int) int
+		Data       func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
 	Mutation struct {
 		AddCat           func(childComplexity int, input []*model.CatInput) int
 		AddCompany       func(childComplexity int, input []*model.CompanyInput) int
 		AddCreditCard    func(childComplexity int, input []*model.CreditCardInput) int
+		AddHelp          func(childComplexity int, input []*model.HelpInput) int
 		AddTodo          func(childComplexity int, input []*model.TodoInput) int
 		AddTodo2Users    func(childComplexity int, input model.TodoRef2UsersInput) int
 		AddUser          func(childComplexity int, input []*model.UserInput) int
@@ -171,11 +197,13 @@ type ComplexityRoot struct {
 		DeleteCat        func(childComplexity int, filter model.CatFiltersInput) int
 		DeleteCompany    func(childComplexity int, filter model.CompanyFiltersInput) int
 		DeleteCreditCard func(childComplexity int, filter model.CreditCardFiltersInput) int
+		DeleteHelp       func(childComplexity int, filter model.HelpFiltersInput) int
 		DeleteTodo       func(childComplexity int, filter model.TodoFiltersInput) int
 		DeleteUser       func(childComplexity int, filter model.UserFiltersInput) int
 		UpdateCat        func(childComplexity int, input model.UpdateCatInput) int
 		UpdateCompany    func(childComplexity int, input model.UpdateCompanyInput) int
 		UpdateCreditCard func(childComplexity int, input model.UpdateCreditCardInput) int
+		UpdateHelp       func(childComplexity int, input model.UpdateHelpInput) int
 		UpdateTodo       func(childComplexity int, input model.UpdateTodoInput) int
 		UpdateUser       func(childComplexity int, input model.UpdateUserInput) int
 	}
@@ -185,11 +213,13 @@ type ComplexityRoot struct {
 		GetCat          func(childComplexity int, id int) int
 		GetCompany      func(childComplexity int, id int) int
 		GetCreditCard   func(childComplexity int, id int) int
+		GetHelp         func(childComplexity int, id int) int
 		GetTodo         func(childComplexity int, id int) int
 		GetUser         func(childComplexity int, id int) int
 		QueryCat        func(childComplexity int, filter *model.CatFiltersInput, order *model.CatOrder, first *int, offset *int) int
 		QueryCompany    func(childComplexity int, filter *model.CompanyFiltersInput, order *model.CompanyOrder, first *int, offset *int) int
 		QueryCreditCard func(childComplexity int, filter *model.CreditCardFiltersInput, order *model.CreditCardOrder, first *int, offset *int) int
+		QueryHelp       func(childComplexity int, filter *model.HelpFiltersInput, order *model.HelpOrder, first *int, offset *int) int
 		QueryTodo       func(childComplexity int, filter *model.TodoFiltersInput, order *model.TodoOrder, first *int, offset *int) int
 		QueryUser       func(childComplexity int, filter *model.UserFiltersInput, order *model.UserOrder, first *int, offset *int) int
 	}
@@ -197,6 +227,7 @@ type ComplexityRoot struct {
 	Todo struct {
 		Description func(childComplexity int) int
 		Done        func(childComplexity int) int
+		Help        func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Title       func(childComplexity int) int
 		Users       func(childComplexity int) int
@@ -221,6 +252,11 @@ type ComplexityRoot struct {
 	UpdateCreditCardPayload struct {
 		Count      func(childComplexity int) int
 		CreditCard func(childComplexity int, filter *model.CreditCardFiltersInput, order *model.CreditCardOrder, first *int, offset *int) int
+	}
+
+	UpdateHelpPayload struct {
+		Count func(childComplexity int) int
+		Help  func(childComplexity int, filter *model.HelpFiltersInput, order *model.HelpOrder, first *int, offset *int) int
 	}
 
 	UpdateTodoPayload struct {
@@ -259,6 +295,9 @@ type AddCompanyPayloadResolver interface {
 type AddCreditCardPayloadResolver interface {
 	CreditCard(ctx context.Context, obj *model.AddCreditCardPayload, filter *model.CreditCardFiltersInput, order *model.CreditCardOrder, first *int, offset *int) (*model.CreditCardQueryResult, error)
 }
+type AddHelpPayloadResolver interface {
+	Help(ctx context.Context, obj *model.AddHelpPayload, filter *model.HelpFiltersInput, order *model.HelpOrder, first *int, offset *int) (*model.HelpQueryResult, error)
+}
 type AddTodoPayloadResolver interface {
 	Todo(ctx context.Context, obj *model.AddTodoPayload, filter *model.TodoFiltersInput, order *model.TodoOrder, first *int, offset *int) (*model.TodoQueryResult, error)
 }
@@ -273,6 +312,9 @@ type DeleteCompanyPayloadResolver interface {
 }
 type DeleteCreditCardPayloadResolver interface {
 	CreditCard(ctx context.Context, obj *model.DeleteCreditCardPayload, filter *model.CreditCardFiltersInput, order *model.CreditCardOrder, first *int, offset *int) (*model.CreditCardQueryResult, error)
+}
+type DeleteHelpPayloadResolver interface {
+	Help(ctx context.Context, obj *model.DeleteHelpPayload, filter *model.HelpFiltersInput, order *model.HelpOrder, first *int, offset *int) (*model.HelpQueryResult, error)
 }
 type DeleteTodoPayloadResolver interface {
 	Todo(ctx context.Context, obj *model.DeleteTodoPayload, filter *model.TodoFiltersInput, order *model.TodoOrder, first *int, offset *int) (*model.TodoQueryResult, error)
@@ -291,6 +333,9 @@ type MutationResolver interface {
 	AddCreditCard(ctx context.Context, input []*model.CreditCardInput) (*model.AddCreditCardPayload, error)
 	UpdateCreditCard(ctx context.Context, input model.UpdateCreditCardInput) (*model.UpdateCreditCardPayload, error)
 	DeleteCreditCard(ctx context.Context, filter model.CreditCardFiltersInput) (*model.DeleteCreditCardPayload, error)
+	AddHelp(ctx context.Context, input []*model.HelpInput) (*model.AddHelpPayload, error)
+	UpdateHelp(ctx context.Context, input model.UpdateHelpInput) (*model.UpdateHelpPayload, error)
+	DeleteHelp(ctx context.Context, filter model.HelpFiltersInput) (*model.DeleteHelpPayload, error)
 	AddUser2Todos(ctx context.Context, input model.UserRef2TodosInput) (*model.UpdateTodoPayload, error)
 	AddTodo(ctx context.Context, input []*model.TodoInput) (*model.AddTodoPayload, error)
 	UpdateTodo(ctx context.Context, input model.UpdateTodoInput) (*model.UpdateTodoPayload, error)
@@ -308,6 +353,8 @@ type QueryResolver interface {
 	QueryCompany(ctx context.Context, filter *model.CompanyFiltersInput, order *model.CompanyOrder, first *int, offset *int) (*model.CompanyQueryResult, error)
 	GetCreditCard(ctx context.Context, id int) (*model.CreditCard, error)
 	QueryCreditCard(ctx context.Context, filter *model.CreditCardFiltersInput, order *model.CreditCardOrder, first *int, offset *int) (*model.CreditCardQueryResult, error)
+	GetHelp(ctx context.Context, id int) (*model.Help, error)
+	QueryHelp(ctx context.Context, filter *model.HelpFiltersInput, order *model.HelpOrder, first *int, offset *int) (*model.HelpQueryResult, error)
 	GetTodo(ctx context.Context, id int) (*model.Todo, error)
 	QueryTodo(ctx context.Context, filter *model.TodoFiltersInput, order *model.TodoOrder, first *int, offset *int) (*model.TodoQueryResult, error)
 	GetUser(ctx context.Context, id int) (*model.User, error)
@@ -321,6 +368,9 @@ type UpdateCompanyPayloadResolver interface {
 }
 type UpdateCreditCardPayloadResolver interface {
 	CreditCard(ctx context.Context, obj *model.UpdateCreditCardPayload, filter *model.CreditCardFiltersInput, order *model.CreditCardOrder, first *int, offset *int) (*model.CreditCardQueryResult, error)
+}
+type UpdateHelpPayloadResolver interface {
+	Help(ctx context.Context, obj *model.UpdateHelpPayload, filter *model.HelpFiltersInput, order *model.HelpOrder, first *int, offset *int) (*model.HelpQueryResult, error)
 }
 type UpdateTodoPayloadResolver interface {
 	Todo(ctx context.Context, obj *model.UpdateTodoPayload, filter *model.TodoFiltersInput, order *model.TodoOrder, first *int, offset *int) (*model.TodoQueryResult, error)
@@ -379,6 +429,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AddCreditCardPayload.CreditCard(childComplexity, args["filter"].(*model.CreditCardFiltersInput), args["order"].(*model.CreditCardOrder), args["first"].(*int), args["offset"].(*int)), true
+
+	case "AddHelpPayload.help":
+		if e.complexity.AddHelpPayload.Help == nil {
+			break
+		}
+
+		args, err := ec.field_AddHelpPayload_help_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AddHelpPayload.Help(childComplexity, args["filter"].(*model.HelpFiltersInput), args["order"].(*model.HelpOrder), args["first"].(*int), args["offset"].(*int)), true
 
 	case "AddTodoPayload.todo":
 		if e.complexity.AddTodoPayload.Todo == nil {
@@ -643,6 +705,32 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteCreditCardPayload.Msg(childComplexity), true
 
+	case "DeleteHelpPayload.count":
+		if e.complexity.DeleteHelpPayload.Count == nil {
+			break
+		}
+
+		return e.complexity.DeleteHelpPayload.Count(childComplexity), true
+
+	case "DeleteHelpPayload.help":
+		if e.complexity.DeleteHelpPayload.Help == nil {
+			break
+		}
+
+		args, err := ec.field_DeleteHelpPayload_help_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.DeleteHelpPayload.Help(childComplexity, args["filter"].(*model.HelpFiltersInput), args["order"].(*model.HelpOrder), args["first"].(*int), args["offset"].(*int)), true
+
+	case "DeleteHelpPayload.msg":
+		if e.complexity.DeleteHelpPayload.Msg == nil {
+			break
+		}
+
+		return e.complexity.DeleteHelpPayload.Msg(childComplexity), true
+
 	case "DeleteTodoPayload.count":
 		if e.complexity.DeleteTodoPayload.Count == nil {
 			break
@@ -695,6 +783,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteUserPayload.User(childComplexity, args["filter"].(*model.UserFiltersInput), args["order"].(*model.UserOrder), args["first"].(*int), args["offset"].(*int)), true
 
+	case "Help.id":
+		if e.complexity.Help.ID == nil {
+			break
+		}
+
+		return e.complexity.Help.ID(childComplexity), true
+
+	case "Help.text":
+		if e.complexity.Help.Text == nil {
+			break
+		}
+
+		return e.complexity.Help.Text(childComplexity), true
+
+	case "Help.todoID":
+		if e.complexity.Help.TodoID == nil {
+			break
+		}
+
+		return e.complexity.Help.TodoID(childComplexity), true
+
+	case "HelpQueryResult.count":
+		if e.complexity.HelpQueryResult.Count == nil {
+			break
+		}
+
+		return e.complexity.HelpQueryResult.Count(childComplexity), true
+
+	case "HelpQueryResult.data":
+		if e.complexity.HelpQueryResult.Data == nil {
+			break
+		}
+
+		return e.complexity.HelpQueryResult.Data(childComplexity), true
+
+	case "HelpQueryResult.totalCount":
+		if e.complexity.HelpQueryResult.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.HelpQueryResult.TotalCount(childComplexity), true
+
 	case "Mutation.addCat":
 		if e.complexity.Mutation.AddCat == nil {
 			break
@@ -730,6 +860,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddCreditCard(childComplexity, args["input"].([]*model.CreditCardInput)), true
+
+	case "Mutation.addHelp":
+		if e.complexity.Mutation.AddHelp == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addHelp_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddHelp(childComplexity, args["input"].([]*model.HelpInput)), true
 
 	case "Mutation.addTodo":
 		if e.complexity.Mutation.AddTodo == nil {
@@ -822,6 +964,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteCreditCard(childComplexity, args["filter"].(model.CreditCardFiltersInput)), true
 
+	case "Mutation.deleteHelp":
+		if e.complexity.Mutation.DeleteHelp == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteHelp_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteHelp(childComplexity, args["filter"].(model.HelpFiltersInput)), true
+
 	case "Mutation.deleteTodo":
 		if e.complexity.Mutation.DeleteTodo == nil {
 			break
@@ -881,6 +1035,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateCreditCard(childComplexity, args["input"].(model.UpdateCreditCardInput)), true
+
+	case "Mutation.updateHelp":
+		if e.complexity.Mutation.UpdateHelp == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateHelp_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateHelp(childComplexity, args["input"].(model.UpdateHelpInput)), true
 
 	case "Mutation.updateTodo":
 		if e.complexity.Mutation.UpdateTodo == nil {
@@ -949,6 +1115,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetCreditCard(childComplexity, args["id"].(int)), true
 
+	case "Query.getHelp":
+		if e.complexity.Query.GetHelp == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getHelp_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetHelp(childComplexity, args["id"].(int)), true
+
 	case "Query.getTodo":
 		if e.complexity.Query.GetTodo == nil {
 			break
@@ -1009,6 +1187,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.QueryCreditCard(childComplexity, args["filter"].(*model.CreditCardFiltersInput), args["order"].(*model.CreditCardOrder), args["first"].(*int), args["offset"].(*int)), true
 
+	case "Query.queryHelp":
+		if e.complexity.Query.QueryHelp == nil {
+			break
+		}
+
+		args, err := ec.field_Query_queryHelp_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.QueryHelp(childComplexity, args["filter"].(*model.HelpFiltersInput), args["order"].(*model.HelpOrder), args["first"].(*int), args["offset"].(*int)), true
+
 	case "Query.queryTodo":
 		if e.complexity.Query.QueryTodo == nil {
 			break
@@ -1046,6 +1236,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Todo.Done(childComplexity), true
+
+	case "Todo.help":
+		if e.complexity.Todo.Help == nil {
+			break
+		}
+
+		return e.complexity.Todo.Help(childComplexity), true
 
 	case "Todo.id":
 		if e.complexity.Todo.ID == nil {
@@ -1145,6 +1342,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UpdateCreditCardPayload.CreditCard(childComplexity, args["filter"].(*model.CreditCardFiltersInput), args["order"].(*model.CreditCardOrder), args["first"].(*int), args["offset"].(*int)), true
+
+	case "UpdateHelpPayload.count":
+		if e.complexity.UpdateHelpPayload.Count == nil {
+			break
+		}
+
+		return e.complexity.UpdateHelpPayload.Count(childComplexity), true
+
+	case "UpdateHelpPayload.help":
+		if e.complexity.UpdateHelpPayload.Help == nil {
+			break
+		}
+
+		args, err := ec.field_UpdateHelpPayload_help_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.UpdateHelpPayload.Help(childComplexity, args["filter"].(*model.HelpFiltersInput), args["order"].(*model.HelpOrder), args["first"].(*int), args["offset"].(*int)), true
 
 	case "UpdateTodoPayload.count":
 		if e.complexity.UpdateTodoPayload.Count == nil {
@@ -1275,6 +1491,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreditCardInput,
 		ec.unmarshalInputCreditCardOrder,
 		ec.unmarshalInputCreditCardPatch,
+		ec.unmarshalInputHelpFiltersInput,
+		ec.unmarshalInputHelpInput,
+		ec.unmarshalInputHelpOrder,
+		ec.unmarshalInputHelpPatch,
 		ec.unmarshalInputIDFilterInput,
 		ec.unmarshalInputIntFilterBetween,
 		ec.unmarshalInputIntFilterInput,
@@ -1292,6 +1512,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateCatInput,
 		ec.unmarshalInputUpdateCompanyInput,
 		ec.unmarshalInputUpdateCreditCardInput,
+		ec.unmarshalInputUpdateHelpInput,
 		ec.unmarshalInputUpdateTodoInput,
 		ec.unmarshalInputUpdateUserInput,
 		ec.unmarshalInputUserFiltersInput,
@@ -1427,6 +1648,13 @@ type Todo @SQL {
   description: String!
   done: Boolean!
   users: [User]@SQL_GORM(value:"many2many:user_todos")
+  help: Help
+}
+
+type Help @SQL {
+  id: Int! @SQL_PRIMARY @SQL_GORM(value: "autoIncrement")
+  text: String
+  todoID: Int!
 }
 
 
@@ -1534,7 +1762,8 @@ directive @G on FIELD_DEFINITION`, BuiltIn: false},
 	directive @SQL_INDEX on FIELD_DEFINITION
 
 	directive @SQL_GORM (value: String)on FIELD_DEFINITION
-
+  
+	directive @SQL_SKIP_MUTATION on FIELD_DEFINITION
 	scalar Time
 	`, BuiltIn: true},
 	{Name: "../../autogql/autogql.graphql", Input: `
@@ -1831,12 +2060,77 @@ extend type Mutation {
   deleteCreditCard(filter: CreditCardFiltersInput!): DeleteCreditCardPayload 
 }
 
+input HelpInput{
+  text: String
+  todoID: Int!
+}
+
+input HelpPatch{
+  text: String
+  todoID: Int
+}
+
+input UpdateHelpInput{
+  filter: HelpFiltersInput!
+  set: HelpPatch!
+}
+
+type AddHelpPayload{
+  help(filter: HelpFiltersInput, order: HelpOrder, first: Int, offset: Int): HelpQueryResult!
+}
+
+type UpdateHelpPayload{
+  help(filter: HelpFiltersInput, order: HelpOrder, first: Int, offset: Int): HelpQueryResult!
+  count: Int!
+}
+
+type DeleteHelpPayload{
+  help(filter: HelpFiltersInput, order: HelpOrder, first: Int, offset: Int): HelpQueryResult!
+  count: Int!
+  msg: String
+}
+
+type HelpQueryResult{
+  data: [Help!]!
+  count: Int!
+  totalCount: Int!
+}
+
+enum HelpOrderable {
+  id
+  text
+  todoID
+}
+input HelpOrder{
+  asc: HelpOrderable
+  desc: HelpOrderable
+}
+
+input HelpFiltersInput{
+  id: IntFilterInput
+  text: StringFilterInput
+  todoID: IntFilterInput
+  and: [HelpFiltersInput]
+  or: [HelpFiltersInput]
+  not: HelpFiltersInput
+}
+extend type Query {
+  getHelp(id: Int!, ): Help 
+  queryHelp(filter: HelpFiltersInput, order: HelpOrder, first: Int, offset: Int ): HelpQueryResult 
+}
+extend type Mutation {
+  addHelp(input: [HelpInput!]!): AddHelpPayload 
+  updateHelp(input: UpdateHelpInput!): UpdateHelpPayload 
+  deleteHelp(filter: HelpFiltersInput!): DeleteHelpPayload 
+}
+
 input TodoInput{
   id: Int!
   title: String!
   description: String!
   done: Boolean!
   users: [UserInput!]
+  help: HelpInput
 }
 
 input TodoPatch{
@@ -1845,6 +2139,7 @@ input TodoPatch{
   description: String
   done: Boolean
   users: [UserPatch!]
+  help: HelpPatch
 }
 
 input UpdateTodoInput{
@@ -1895,6 +2190,7 @@ input TodoFiltersInput{
   description: StringFilterInput
   done: BooleanFilterInput
   users:UserFiltersInput
+  help:HelpFiltersInput
   and: [TodoFiltersInput]
   or: [TodoFiltersInput]
   not: TodoFiltersInput
@@ -2100,6 +2396,48 @@ func (ec *executionContext) field_AddCreditCardPayload_creditCard_args(ctx conte
 	if tmp, ok := rawArgs["order"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
 		arg1, err = ec.unmarshalOCreditCardOrder2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["order"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_AddHelpPayload_help_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.HelpFiltersInput
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	var arg1 *model.HelpOrder
+	if tmp, ok := rawArgs["order"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
+		arg1, err = ec.unmarshalOHelpOrder2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2336,6 +2674,48 @@ func (ec *executionContext) field_DeleteCreditCardPayload_creditCard_args(ctx co
 	return args, nil
 }
 
+func (ec *executionContext) field_DeleteHelpPayload_help_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.HelpFiltersInput
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	var arg1 *model.HelpOrder
+	if tmp, ok := rawArgs["order"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
+		arg1, err = ec.unmarshalOHelpOrder2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["order"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
+	return args, nil
+}
+
 func (ec *executionContext) field_DeleteTodoPayload_todo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2465,6 +2845,21 @@ func (ec *executionContext) field_Mutation_addCreditCard_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_addHelp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []*model.HelpInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNHelpInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpInputᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_addTodo2Users_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2570,6 +2965,21 @@ func (ec *executionContext) field_Mutation_deleteCreditCard_args(ctx context.Con
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteHelp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.HelpFiltersInput
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalNHelpFiltersInput2githubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2637,6 +3047,21 @@ func (ec *executionContext) field_Mutation_updateCreditCard_args(ctx context.Con
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNUpdateCreditCardInput2githubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUpdateCreditCardInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateHelp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateHelpInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateHelpInput2githubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUpdateHelpInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2721,6 +3146,21 @@ func (ec *executionContext) field_Query_getCompany_args(ctx context.Context, raw
 }
 
 func (ec *executionContext) field_Query_getCreditCard_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getHelp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int
@@ -2865,6 +3305,48 @@ func (ec *executionContext) field_Query_queryCreditCard_args(ctx context.Context
 	if tmp, ok := rawArgs["order"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
 		arg1, err = ec.unmarshalOCreditCardOrder2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["order"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_queryHelp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.HelpFiltersInput
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	var arg1 *model.HelpOrder
+	if tmp, ok := rawArgs["order"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
+		arg1, err = ec.unmarshalOHelpOrder2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3075,6 +3557,48 @@ func (ec *executionContext) field_UpdateCreditCardPayload_creditCard_args(ctx co
 	if tmp, ok := rawArgs["order"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
 		arg1, err = ec.unmarshalOCreditCardOrder2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["order"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_UpdateHelpPayload_help_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.HelpFiltersInput
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	var arg1 *model.HelpOrder
+	if tmp, ok := rawArgs["order"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
+		arg1, err = ec.unmarshalOHelpOrder2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3406,6 +3930,69 @@ func (ec *executionContext) fieldContext_AddCreditCardPayload_creditCard(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_AddCreditCardPayload_creditCard_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AddHelpPayload_help(ctx context.Context, field graphql.CollectedField, obj *model.AddHelpPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddHelpPayload_help(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AddHelpPayload().Help(rctx, obj, fc.Args["filter"].(*model.HelpFiltersInput), fc.Args["order"].(*model.HelpOrder), fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.HelpQueryResult)
+	fc.Result = res
+	return ec.marshalNHelpQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpQueryResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AddHelpPayload_help(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AddHelpPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_HelpQueryResult_data(ctx, field)
+			case "count":
+				return ec.fieldContext_HelpQueryResult_count(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_HelpQueryResult_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type HelpQueryResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AddHelpPayload_help_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -5024,6 +5611,154 @@ func (ec *executionContext) fieldContext_DeleteCreditCardPayload_msg(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteHelpPayload_help(ctx context.Context, field graphql.CollectedField, obj *model.DeleteHelpPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteHelpPayload_help(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.DeleteHelpPayload().Help(rctx, obj, fc.Args["filter"].(*model.HelpFiltersInput), fc.Args["order"].(*model.HelpOrder), fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.HelpQueryResult)
+	fc.Result = res
+	return ec.marshalNHelpQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpQueryResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteHelpPayload_help(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteHelpPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_HelpQueryResult_data(ctx, field)
+			case "count":
+				return ec.fieldContext_HelpQueryResult_count(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_HelpQueryResult_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type HelpQueryResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_DeleteHelpPayload_help_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteHelpPayload_count(ctx context.Context, field graphql.CollectedField, obj *model.DeleteHelpPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteHelpPayload_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteHelpPayload_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteHelpPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteHelpPayload_msg(ctx context.Context, field graphql.CollectedField, obj *model.DeleteHelpPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteHelpPayload_msg(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Msg, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteHelpPayload_msg(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteHelpPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DeleteTodoPayload_todo(ctx context.Context, field graphql.CollectedField, obj *model.DeleteTodoPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DeleteTodoPayload_todo(ctx, field)
 	if err != nil {
@@ -5315,6 +6050,275 @@ func (ec *executionContext) fieldContext_DeleteUserPayload_msg(ctx context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Help_id(ctx context.Context, field graphql.CollectedField, obj *model.Help) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Help_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Help_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Help",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Help_text(ctx context.Context, field graphql.CollectedField, obj *model.Help) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Help_text(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Text, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Help_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Help",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Help_todoID(ctx context.Context, field graphql.CollectedField, obj *model.Help) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Help_todoID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TodoID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Help_todoID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Help",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _HelpQueryResult_data(ctx context.Context, field graphql.CollectedField, obj *model.HelpQueryResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_HelpQueryResult_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Help)
+	fc.Result = res
+	return ec.marshalNHelp2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_HelpQueryResult_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "HelpQueryResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Help_id(ctx, field)
+			case "text":
+				return ec.fieldContext_Help_text(ctx, field)
+			case "todoID":
+				return ec.fieldContext_Help_todoID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Help", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _HelpQueryResult_count(ctx context.Context, field graphql.CollectedField, obj *model.HelpQueryResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_HelpQueryResult_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_HelpQueryResult_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "HelpQueryResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _HelpQueryResult_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.HelpQueryResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_HelpQueryResult_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_HelpQueryResult_totalCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "HelpQueryResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5867,6 +6871,177 @@ func (ec *executionContext) fieldContext_Mutation_deleteCreditCard(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteCreditCard_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addHelp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addHelp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddHelp(rctx, fc.Args["input"].([]*model.HelpInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.AddHelpPayload)
+	fc.Result = res
+	return ec.marshalOAddHelpPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐAddHelpPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addHelp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "help":
+				return ec.fieldContext_AddHelpPayload_help(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AddHelpPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addHelp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateHelp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateHelp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateHelp(rctx, fc.Args["input"].(model.UpdateHelpInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.UpdateHelpPayload)
+	fc.Result = res
+	return ec.marshalOUpdateHelpPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUpdateHelpPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateHelp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "help":
+				return ec.fieldContext_UpdateHelpPayload_help(ctx, field)
+			case "count":
+				return ec.fieldContext_UpdateHelpPayload_count(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateHelpPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateHelp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteHelp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteHelp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteHelp(rctx, fc.Args["filter"].(model.HelpFiltersInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.DeleteHelpPayload)
+	fc.Result = res
+	return ec.marshalODeleteHelpPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐDeleteHelpPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteHelp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "help":
+				return ec.fieldContext_DeleteHelpPayload_help(ctx, field)
+			case "count":
+				return ec.fieldContext_DeleteHelpPayload_count(ctx, field)
+			case "msg":
+				return ec.fieldContext_DeleteHelpPayload_msg(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteHelpPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteHelp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -6837,6 +8012,124 @@ func (ec *executionContext) fieldContext_Query_queryCreditCard(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getHelp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getHelp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetHelp(rctx, fc.Args["id"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Help)
+	fc.Result = res
+	return ec.marshalOHelp2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getHelp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Help_id(ctx, field)
+			case "text":
+				return ec.fieldContext_Help_text(ctx, field)
+			case "todoID":
+				return ec.fieldContext_Help_todoID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Help", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getHelp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_queryHelp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_queryHelp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().QueryHelp(rctx, fc.Args["filter"].(*model.HelpFiltersInput), fc.Args["order"].(*model.HelpOrder), fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.HelpQueryResult)
+	fc.Result = res
+	return ec.marshalOHelpQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpQueryResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_queryHelp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_HelpQueryResult_data(ctx, field)
+			case "count":
+				return ec.fieldContext_HelpQueryResult_count(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_HelpQueryResult_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type HelpQueryResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_queryHelp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getTodo(ctx, field)
 	if err != nil {
@@ -6882,6 +8175,8 @@ func (ec *executionContext) fieldContext_Query_getTodo(ctx context.Context, fiel
 				return ec.fieldContext_Todo_done(ctx, field)
 			case "users":
 				return ec.fieldContext_Todo_users(ctx, field)
+			case "help":
+				return ec.fieldContext_Todo_help(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -7497,6 +8792,55 @@ func (ec *executionContext) fieldContext_Todo_users(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Todo_help(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_help(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Help, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Help)
+	fc.Result = res
+	return ec.marshalOHelp2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_help(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Help_id(ctx, field)
+			case "text":
+				return ec.fieldContext_Help_text(ctx, field)
+			case "todoID":
+				return ec.fieldContext_Help_todoID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Help", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TodoQueryResult_data(ctx context.Context, field graphql.CollectedField, obj *model.TodoQueryResult) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TodoQueryResult_data(ctx, field)
 	if err != nil {
@@ -7546,6 +8890,8 @@ func (ec *executionContext) fieldContext_TodoQueryResult_data(ctx context.Contex
 				return ec.fieldContext_Todo_done(ctx, field)
 			case "users":
 				return ec.fieldContext_Todo_users(ctx, field)
+			case "help":
+				return ec.fieldContext_Todo_help(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -7952,6 +9298,113 @@ func (ec *executionContext) _UpdateCreditCardPayload_count(ctx context.Context, 
 func (ec *executionContext) fieldContext_UpdateCreditCardPayload_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateCreditCardPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateHelpPayload_help(ctx context.Context, field graphql.CollectedField, obj *model.UpdateHelpPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateHelpPayload_help(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UpdateHelpPayload().Help(rctx, obj, fc.Args["filter"].(*model.HelpFiltersInput), fc.Args["order"].(*model.HelpOrder), fc.Args["first"].(*int), fc.Args["offset"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.HelpQueryResult)
+	fc.Result = res
+	return ec.marshalNHelpQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpQueryResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateHelpPayload_help(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateHelpPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_HelpQueryResult_data(ctx, field)
+			case "count":
+				return ec.fieldContext_HelpQueryResult_count(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_HelpQueryResult_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type HelpQueryResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_UpdateHelpPayload_help_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateHelpPayload_count(ctx context.Context, field graphql.CollectedField, obj *model.UpdateHelpPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateHelpPayload_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateHelpPayload_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateHelpPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8409,6 +9862,8 @@ func (ec *executionContext) fieldContext_User_todoList(ctx context.Context, fiel
 				return ec.fieldContext_Todo_done(ctx, field)
 			case "users":
 				return ec.fieldContext_Todo_users(ctx, field)
+			case "help":
+				return ec.fieldContext_Todo_help(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -11147,6 +12602,182 @@ func (ec *executionContext) unmarshalInputCreditCardPatch(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputHelpFiltersInput(ctx context.Context, obj interface{}) (model.HelpFiltersInput, error) {
+	var it model.HelpFiltersInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "text", "todoID", "and", "or", "not"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalOIntFilterInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐIntFilterInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "text":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			it.Text, err = ec.unmarshalOStringFilterInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐStringFilterInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "todoID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoID"))
+			it.TodoID, err = ec.unmarshalOIntFilterInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐIntFilterInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "and":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
+			it.And, err = ec.unmarshalOHelpFiltersInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "or":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
+			it.Or, err = ec.unmarshalOHelpFiltersInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "not":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
+			it.Not, err = ec.unmarshalOHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputHelpInput(ctx context.Context, obj interface{}) (model.HelpInput, error) {
+	var it model.HelpInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"text", "todoID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "text":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			it.Text, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "todoID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoID"))
+			it.TodoID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputHelpOrder(ctx context.Context, obj interface{}) (model.HelpOrder, error) {
+	var it model.HelpOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"asc", "desc"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "asc":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("asc"))
+			it.Asc, err = ec.unmarshalOHelpOrderable2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrderable(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "desc":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("desc"))
+			it.Desc, err = ec.unmarshalOHelpOrderable2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrderable(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputHelpPatch(ctx context.Context, obj interface{}) (model.HelpPatch, error) {
+	var it model.HelpPatch
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"text", "todoID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "text":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			it.Text, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "todoID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoID"))
+			it.TodoID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputIDFilterInput(ctx context.Context, obj interface{}) (model.IDFilterInput, error) {
 	var it model.IDFilterInput
 	asMap := map[string]interface{}{}
@@ -11862,7 +13493,7 @@ func (ec *executionContext) unmarshalInputTodoFiltersInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "title", "description", "done", "users", "and", "or", "not"}
+	fieldsInOrder := [...]string{"id", "title", "description", "done", "users", "help", "and", "or", "not"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11909,6 +13540,14 @@ func (ec *executionContext) unmarshalInputTodoFiltersInput(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
+		case "help":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("help"))
+			it.Help, err = ec.unmarshalOHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "and":
 			var err error
 
@@ -11946,7 +13585,7 @@ func (ec *executionContext) unmarshalInputTodoInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "title", "description", "done", "users"}
+	fieldsInOrder := [...]string{"id", "title", "description", "done", "users", "help"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11990,6 +13629,14 @@ func (ec *executionContext) unmarshalInputTodoInput(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
 			it.Users, err = ec.unmarshalOUserInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUserInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "help":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("help"))
+			it.Help, err = ec.unmarshalOHelpInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12042,7 +13689,7 @@ func (ec *executionContext) unmarshalInputTodoPatch(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "title", "description", "done", "users"}
+	fieldsInOrder := [...]string{"id", "title", "description", "done", "users", "help"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12086,6 +13733,14 @@ func (ec *executionContext) unmarshalInputTodoPatch(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
 			it.Users, err = ec.unmarshalOUserPatch2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUserPatchᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "help":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("help"))
+			it.Help, err = ec.unmarshalOHelpPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpPatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12230,6 +13885,42 @@ func (ec *executionContext) unmarshalInputUpdateCreditCardInput(ctx context.Cont
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("set"))
 			it.Set, err = ec.unmarshalNCreditCardPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐCreditCardPatch(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateHelpInput(ctx context.Context, obj interface{}) (model.UpdateHelpInput, error) {
+	var it model.UpdateHelpInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"filter", "set"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "filter":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+			it.Filter, err = ec.unmarshalNHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "set":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("set"))
+			it.Set, err = ec.unmarshalNHelpPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpPatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12766,6 +14457,47 @@ func (ec *executionContext) _AddCreditCardPayload(ctx context.Context, sel ast.S
 	return out
 }
 
+var addHelpPayloadImplementors = []string{"AddHelpPayload"}
+
+func (ec *executionContext) _AddHelpPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AddHelpPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addHelpPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AddHelpPayload")
+		case "help":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AddHelpPayload_help(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var addTodoPayloadImplementors = []string{"AddTodoPayload"}
 
 func (ec *executionContext) _AddTodoPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AddTodoPayload) graphql.Marshaler {
@@ -13273,6 +15005,58 @@ func (ec *executionContext) _DeleteCreditCardPayload(ctx context.Context, sel as
 	return out
 }
 
+var deleteHelpPayloadImplementors = []string{"DeleteHelpPayload"}
+
+func (ec *executionContext) _DeleteHelpPayload(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteHelpPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteHelpPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteHelpPayload")
+		case "help":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DeleteHelpPayload_help(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "count":
+
+			out.Values[i] = ec._DeleteHelpPayload_count(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "msg":
+
+			out.Values[i] = ec._DeleteHelpPayload_msg(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var deleteTodoPayloadImplementors = []string{"DeleteTodoPayload"}
 
 func (ec *executionContext) _DeleteTodoPayload(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteTodoPayload) graphql.Marshaler {
@@ -13377,6 +15161,87 @@ func (ec *executionContext) _DeleteUserPayload(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var helpImplementors = []string{"Help"}
+
+func (ec *executionContext) _Help(ctx context.Context, sel ast.SelectionSet, obj *model.Help) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, helpImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Help")
+		case "id":
+
+			out.Values[i] = ec._Help_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "text":
+
+			out.Values[i] = ec._Help_text(ctx, field, obj)
+
+		case "todoID":
+
+			out.Values[i] = ec._Help_todoID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var helpQueryResultImplementors = []string{"HelpQueryResult"}
+
+func (ec *executionContext) _HelpQueryResult(ctx context.Context, sel ast.SelectionSet, obj *model.HelpQueryResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, helpQueryResultImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("HelpQueryResult")
+		case "data":
+
+			out.Values[i] = ec._HelpQueryResult_data(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "count":
+
+			out.Values[i] = ec._HelpQueryResult_count(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "totalCount":
+
+			out.Values[i] = ec._HelpQueryResult_totalCount(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -13453,6 +15318,24 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteCreditCard(ctx, field)
+			})
+
+		case "addHelp":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addHelp(ctx, field)
+			})
+
+		case "updateHelp":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateHelp(ctx, field)
+			})
+
+		case "deleteHelp":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteHelp(ctx, field)
 			})
 
 		case "addUser2Todos":
@@ -13669,6 +15552,46 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getHelp":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getHelp(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "queryHelp":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_queryHelp(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "getTodo":
 			field := field
 
@@ -13810,6 +15733,10 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 		case "users":
 
 			out.Values[i] = ec._Todo_users(ctx, field, obj)
+
+		case "help":
+
+			out.Values[i] = ec._Todo_help(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -13993,6 +15920,54 @@ func (ec *executionContext) _UpdateCreditCardPayload(ctx context.Context, sel as
 		case "count":
 
 			out.Values[i] = ec._UpdateCreditCardPayload_count(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var updateHelpPayloadImplementors = []string{"UpdateHelpPayload"}
+
+func (ec *executionContext) _UpdateHelpPayload(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateHelpPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateHelpPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateHelpPayload")
+		case "help":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UpdateHelpPayload_help(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "count":
+
+			out.Values[i] = ec._UpdateHelpPayload_count(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -14852,6 +16827,111 @@ func (ec *executionContext) marshalNCreditCardQueryResult2ᚖgithubᚗcomᚋfasi
 	return ec._CreditCardQueryResult(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNHelp2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Help) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNHelp2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelp(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNHelp2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelp(ctx context.Context, sel ast.SelectionSet, v *model.Help) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Help(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNHelpFiltersInput2githubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx context.Context, v interface{}) (model.HelpFiltersInput, error) {
+	res, err := ec.unmarshalInputHelpFiltersInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx context.Context, v interface{}) (*model.HelpFiltersInput, error) {
+	res, err := ec.unmarshalInputHelpFiltersInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNHelpInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpInputᚄ(ctx context.Context, v interface{}) ([]*model.HelpInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.HelpInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNHelpInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNHelpInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpInput(ctx context.Context, v interface{}) (*model.HelpInput, error) {
+	res, err := ec.unmarshalInputHelpInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNHelpPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpPatch(ctx context.Context, v interface{}) (*model.HelpPatch, error) {
+	res, err := ec.unmarshalInputHelpPatch(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNHelpQueryResult2githubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpQueryResult(ctx context.Context, sel ast.SelectionSet, v model.HelpQueryResult) graphql.Marshaler {
+	return ec._HelpQueryResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNHelpQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpQueryResult(ctx context.Context, sel ast.SelectionSet, v *model.HelpQueryResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._HelpQueryResult(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -15051,6 +17131,11 @@ func (ec *executionContext) unmarshalNUpdateCompanyInput2githubᚗcomᚋfasibio�
 
 func (ec *executionContext) unmarshalNUpdateCreditCardInput2githubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUpdateCreditCardInput(ctx context.Context, v interface{}) (model.UpdateCreditCardInput, error) {
 	res, err := ec.unmarshalInputUpdateCreditCardInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateHelpInput2githubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUpdateHelpInput(ctx context.Context, v interface{}) (model.UpdateHelpInput, error) {
+	res, err := ec.unmarshalInputUpdateHelpInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -15446,6 +17531,13 @@ func (ec *executionContext) marshalOAddCreditCardPayload2ᚖgithubᚗcomᚋfasib
 		return graphql.Null
 	}
 	return ec._AddCreditCardPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOAddHelpPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐAddHelpPayload(ctx context.Context, sel ast.SelectionSet, v *model.AddHelpPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AddHelpPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOAddTodoPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐAddTodoPayload(ctx context.Context, sel ast.SelectionSet, v *model.AddTodoPayload) graphql.Marshaler {
@@ -15937,6 +18029,13 @@ func (ec *executionContext) marshalODeleteCreditCardPayload2ᚖgithubᚗcomᚋfa
 	return ec._DeleteCreditCardPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalODeleteHelpPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐDeleteHelpPayload(ctx context.Context, sel ast.SelectionSet, v *model.DeleteHelpPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteHelpPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalODeleteTodoPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐDeleteTodoPayload(ctx context.Context, sel ast.SelectionSet, v *model.DeleteTodoPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -15949,6 +18048,88 @@ func (ec *executionContext) marshalODeleteUserPayload2ᚖgithubᚗcomᚋfasibio�
 		return graphql.Null
 	}
 	return ec._DeleteUserPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOHelp2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelp(ctx context.Context, sel ast.SelectionSet, v *model.Help) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Help(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOHelpFiltersInput2ᚕᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx context.Context, v interface{}) ([]*model.HelpFiltersInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.HelpFiltersInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOHelpFiltersInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpFiltersInput(ctx context.Context, v interface{}) (*model.HelpFiltersInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputHelpFiltersInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOHelpInput2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpInput(ctx context.Context, v interface{}) (*model.HelpInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputHelpInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOHelpOrder2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrder(ctx context.Context, v interface{}) (*model.HelpOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputHelpOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOHelpOrderable2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrderable(ctx context.Context, v interface{}) (*model.HelpOrderable, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.HelpOrderable)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOHelpOrderable2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpOrderable(ctx context.Context, sel ast.SelectionSet, v *model.HelpOrderable) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOHelpPatch2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpPatch(ctx context.Context, v interface{}) (*model.HelpPatch, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputHelpPatch(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOHelpQueryResult2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐHelpQueryResult(ctx context.Context, sel ast.SelectionSet, v *model.HelpQueryResult) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._HelpQueryResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOID2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
@@ -16358,6 +18539,13 @@ func (ec *executionContext) marshalOUpdateCreditCardPayload2ᚖgithubᚗcomᚋfa
 		return graphql.Null
 	}
 	return ec._UpdateCreditCardPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOUpdateHelpPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUpdateHelpPayload(ctx context.Context, sel ast.SelectionSet, v *model.UpdateHelpPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UpdateHelpPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOUpdateTodoPayload2ᚖgithubᚗcomᚋfasibioᚋautogql_exampleᚋgraphᚋmodelᚐUpdateTodoPayload(ctx context.Context, sel ast.SelectionSet, v *model.UpdateTodoPayload) graphql.Marshaler {

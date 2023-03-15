@@ -119,6 +119,33 @@ func (d *CreditCardInput) MergeToType() CreditCard {
 	}
 }
 
+func (d *HelpPatch) MergeToType() map[string]interface{} {
+	res := make(map[string]interface{})
+
+	if d.Text != nil {
+		res["text"] = d.Text
+	}
+
+	if d.TodoID != nil {
+		res["todo_id"] = *d.TodoID
+	}
+	return res
+}
+
+func (d *HelpInput) MergeToType() Help {
+
+	var tmpText *string
+	if d.Text != nil {
+		tmpText = d.Text
+	}
+
+	tmpTodoID := d.TodoID
+	return Help{
+		Text:   tmpText,
+		TodoID: tmpTodoID,
+	}
+}
+
 func (d *TodoPatch) MergeToType() map[string]interface{} {
 	res := make(map[string]interface{})
 
@@ -145,6 +172,9 @@ func (d *TodoPatch) MergeToType() map[string]interface{} {
 		}
 		res["users"] = tmpUsers
 	}
+	if d.Help != nil {
+		res["help"] = d.Help.MergeToType()
+	}
 	return res
 }
 
@@ -165,12 +195,17 @@ func (d *TodoInput) MergeToType() Todo {
 			tmpUsers = append(tmpUsers, &tmp)
 		}
 	}
+	var tmpHelp Help
+	if d.Help != nil {
+		tmpHelp = d.Help.MergeToType()
+	}
 	return Todo{
 		ID:          tmpID,
 		Title:       tmpTitle,
 		Description: tmpDescription,
 		Done:        tmpDone,
 		Users:       tmpUsers,
+		Help:        &tmpHelp,
 	}
 }
 

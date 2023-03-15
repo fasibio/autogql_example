@@ -21,6 +21,10 @@ type AddCreditCardPayload struct {
 	CreditCard *CreditCardQueryResult `json:"creditCard"`
 }
 
+type AddHelpPayload struct {
+	Help *HelpQueryResult `json:"help"`
+}
+
 type AddTodoPayload struct {
 	Todo *TodoQueryResult `json:"todo"`
 }
@@ -183,6 +187,12 @@ type DeleteCreditCardPayload struct {
 	Msg        *string                `json:"msg"`
 }
 
+type DeleteHelpPayload struct {
+	Help  *HelpQueryResult `json:"help"`
+	Count int              `json:"count"`
+	Msg   *string          `json:"msg"`
+}
+
 type DeleteTodoPayload struct {
 	Todo  *TodoQueryResult `json:"todo"`
 	Count int              `json:"count"`
@@ -193,6 +203,42 @@ type DeleteUserPayload struct {
 	User  *UserQueryResult `json:"user"`
 	Count int              `json:"count"`
 	Msg   *string          `json:"msg"`
+}
+
+type Help struct {
+	ID     int     `json:"id" gorm:"primaryKey;autoIncrement;"`
+	Text   *string `json:"text"`
+	TodoID int     `json:"todoID"`
+}
+
+type HelpFiltersInput struct {
+	ID     *IntFilterInput     `json:"id"`
+	Text   *StringFilterInput  `json:"text"`
+	TodoID *IntFilterInput     `json:"todoID"`
+	And    []*HelpFiltersInput `json:"and"`
+	Or     []*HelpFiltersInput `json:"or"`
+	Not    *HelpFiltersInput   `json:"not"`
+}
+
+type HelpInput struct {
+	Text   *string `json:"text"`
+	TodoID int     `json:"todoID"`
+}
+
+type HelpOrder struct {
+	Asc  *HelpOrderable `json:"asc"`
+	Desc *HelpOrderable `json:"desc"`
+}
+
+type HelpPatch struct {
+	Text   *string `json:"text"`
+	TodoID *int    `json:"todoID"`
+}
+
+type HelpQueryResult struct {
+	Data       []*Help `json:"data"`
+	Count      int     `json:"count"`
+	TotalCount int     `json:"totalCount"`
 }
 
 type IDFilterInput struct {
@@ -294,6 +340,7 @@ type Todo struct {
 	Description string  `json:"description"`
 	Done        bool    `json:"done"`
 	Users       []*User `json:"users" gorm:"many2many:user_todos;"`
+	Help        *Help   `json:"help"`
 }
 
 type TodoFiltersInput struct {
@@ -302,6 +349,7 @@ type TodoFiltersInput struct {
 	Description *StringFilterInput  `json:"description"`
 	Done        *BooleanFilterInput `json:"done"`
 	Users       *UserFiltersInput   `json:"users"`
+	Help        *HelpFiltersInput   `json:"help"`
 	And         []*TodoFiltersInput `json:"and"`
 	Or          []*TodoFiltersInput `json:"or"`
 	Not         *TodoFiltersInput   `json:"not"`
@@ -313,6 +361,7 @@ type TodoInput struct {
 	Description string       `json:"description"`
 	Done        bool         `json:"done"`
 	Users       []*UserInput `json:"users"`
+	Help        *HelpInput   `json:"help"`
 }
 
 type TodoOrder struct {
@@ -326,6 +375,7 @@ type TodoPatch struct {
 	Description *string      `json:"description"`
 	Done        *bool        `json:"done"`
 	Users       []*UserPatch `json:"users"`
+	Help        *HelpPatch   `json:"help"`
 }
 
 type TodoQueryResult struct {
@@ -367,6 +417,16 @@ type UpdateCreditCardInput struct {
 type UpdateCreditCardPayload struct {
 	CreditCard *CreditCardQueryResult `json:"creditCard"`
 	Count      int                    `json:"count"`
+}
+
+type UpdateHelpInput struct {
+	Filter *HelpFiltersInput `json:"filter"`
+	Set    *HelpPatch        `json:"set"`
+}
+
+type UpdateHelpPayload struct {
+	Help  *HelpQueryResult `json:"help"`
+	Count int              `json:"count"`
 }
 
 type UpdateTodoInput struct {
@@ -578,6 +638,49 @@ func (e *CreditCardOrderable) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CreditCardOrderable) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type HelpOrderable string
+
+const (
+	HelpOrderableID     HelpOrderable = "id"
+	HelpOrderableText   HelpOrderable = "text"
+	HelpOrderableTodoID HelpOrderable = "todoID"
+)
+
+var AllHelpOrderable = []HelpOrderable{
+	HelpOrderableID,
+	HelpOrderableText,
+	HelpOrderableTodoID,
+}
+
+func (e HelpOrderable) IsValid() bool {
+	switch e {
+	case HelpOrderableID, HelpOrderableText, HelpOrderableTodoID:
+		return true
+	}
+	return false
+}
+
+func (e HelpOrderable) String() string {
+	return string(e)
+}
+
+func (e *HelpOrderable) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = HelpOrderable(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid HelpOrderable", str)
+	}
+	return nil
+}
+
+func (e HelpOrderable) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
